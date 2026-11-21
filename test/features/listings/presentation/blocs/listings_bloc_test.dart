@@ -118,4 +118,14 @@ void main() {
     expect(updatedState.allListings.length, 1);
     expect(updatedState.allListings.any((l) => l.id == 'sokna_001'), isFalse);
   });
+
+  test('GetListingsEvent loads listings with owner metadata', () async {
+    bloc.add(const GetListingsEvent());
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    expect(bloc.state, isA<ListingsLoaded>());
+    final loaded = bloc.state as ListingsLoaded;
+    expect(loaded.allListings.first.ownerId, equals('user_123'));
+    expect(loaded.allListings.first.ownerName, equals('Yahia'));
+  });
 }

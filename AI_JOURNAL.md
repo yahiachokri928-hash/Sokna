@@ -101,6 +101,39 @@ Pour aller au-delà des exigences minimales et doter l'application d'un backend 
 
 ---
 
+### Phases C1 à C4 — Catalogue 100% Cloud Firestore, Avis Locataires & Seeder Démo Tunisien
+
+Afin de transformer Sokna en une véritable application de production multi-utilisateurs temps réel pour le marché tunisien, les phases C1 à C4 ont été réalisées :
+
+1. **Phase C1 (Catalogue 100% Cloud Firestore & Métadonnées Bailleurs) :**
+   - Transition de `ListingDataSourceImpl` vers une lecture **exclusivement Cloud Firestore** (`listingsCollection.orderBy('createdAt', descending: true)`).
+   - Mise en cache locale des annonces Cloud dans `SharedPreferences` (`CACHED_CLOUD_LISTINGS`) garantissant un fonctionnement fluide hors-ligne (`ENF3`).
+   - Extension de `ListingEntity` et `ListingModel` avec `ownerPhone` et `ownerAvatarUrl`.
+   - Carte bailleur enrichie sur `ListingDetailScreen` avec photo de profil / initiale, badge vérifié, et actions d'appel / SMS.
+   - Ajustement des règles `firestore.rules` autorisant la mise à jour des champs `rating` et `reviewCount`.
+
+2. **Phase C2 (Avis & Notations Locataires dans Firestore) :**
+   - Création de la sous-collection `listings/{listingId}/reviews/{userId}`.
+   - Entité `ReviewEntity` (Pure Dart) et modèle `ReviewModel` (`fromFirestore`, `toFirestore`, `fromJson`, `toJson`).
+   - Use Cases `GetListingReviewsUseCase` et `SubmitReviewUseCase` injectés dans `service_locator.dart`.
+   - Création de `ReviewsBloc` (`part`/`part of`) gérant `LoadReviewsEvent` et `SubmitReviewEvent`.
+   - Composant interactif sur `ListingDetailScreen` : sélecteur de note 1 à 5 étoiles, champ commentaire, contrôle de connexion et recalcul dynamique de la note moyenne et du nombre d'avis sur le document d'annonce.
+
+3. **Phase C3 (Seeder Cloud Tunisien Idempotent & Sélecteur Démo 1-Clic) :**
+   - Création de `FirestoreCloudSeeder` (`lib/core/firebase/firestore_cloud_seeder.dart`) avec 10 comptes tunisiens réalistes (mot de passe universel `Sokna2026!`) :
+     - 6 Bailleurs : Amine Ben Ali (Bizerte), Salma Trabelsi (La Marsa), Youssef Gharbi (Hammamet), Ons Mansouri (Sousse), Mehdi Bouazizi (Tunis Lac 2), Nourhene Khelifi (Monastir).
+     - 4 Locataires : Aziz Chaabane (Étudiant ISET Bizerte), Meriem Jaziri (Tunis), Bilel Hammami (Sousse), Ines Dridi (Sfax).
+   - Intégration de 16 annonces tunisiennes authentiques réparties sur 10 villes et 36 avis locataires réalistes.
+   - Auto-seed transparent au démarrage dans `main.dart` si Firestore est vide.
+   - Carte rétractable **« Comptes Démo Tunisiens (Connexion 1-clic) »** et bouton **« Peupler / Réinitialiser la base Cloud »** sur `ProfileScreen`.
+
+4. **Phase C4 (Consolidation des Tests, Documentation & Release APK) :**
+   - Suite de tests portée à 28 tests automatisés (couvrant modèles, use cases, BLoCs, widgets et seeder).
+   - Documentation complète dans `README.md` et `AI_JOURNAL.md`.
+   - Compilation de l'APK Release optimisé pour la soutenance.
+
+---
+
 ## 3. Guide de Révision pour la Soutenance Individuelle (Semaine S9)
 
 Cette section synthétise les réponses types aux questions récurrentes du jury d'examen à l'ISET Bizerte.

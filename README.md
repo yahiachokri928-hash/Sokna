@@ -33,11 +33,18 @@ Le projet Sokna propose deux variantes architecturales complémentaires et versi
 - **Branche `firebase-cloud` :** Version Cloud complète intégrant Firebase Auth et Cloud Firestore pour une persistance multi-utilisateurs temps réel.
 
 ### Spécifications Cloud Firestore
-- **`users/{userId}` :** Profils utilisateurs sécurisés (`uid`, `name`, `email`, `profilURL`, `phone`, `role`, `createdAt`, `savedListingIds: []`).
+- **`users/{userId}` :** Profils utilisateurs sécurisés (`uid`, `name`, `email`, `profilURL`, `phone`, `role`, `city`, `createdAt`, `savedListingIds: []`).
   - **Sécurité (`firestore.rules`) :** Lecture et écriture strictement réservées au titulaire authentifié (`request.auth.uid == userId`).
-- **`listings/{listingId}` :** Annonces publiées par les utilisateurs et bailleurs (`id`, `title`, `city`, `price`, `ownerId`, `ownerName`, etc.).
-  - **Sécurité (`firestore.rules`) :** Lecture publique universelle (`allow read: if true`), création et modification réservées aux utilisateurs authentifiés propriétaires (`ownerId == request.auth.uid`).
-- **Catalogue Hybride Fusionné :** `ListingDataSourceImpl` fusionne automatiquement en mémoire le catalogue de base (REST GitHub Raw / asset local) et les annonces Cloud Firestore sans aucun doublon d'identifiant.
+- **`listings/{listingId}` :** Catalogue 100% Cloud Firestore ordonné par date de création descendante (`createdAt`), enrichi des coordonnées du bailleur (`ownerId`, `ownerName`, `ownerPhone`, `ownerAvatarUrl`).
+  - **Sécurité (`firestore.rules`) :** Lecture publique universelle (`allow read: if true`), création/suppression réservées aux bailleurs propriétaires (`ownerId == request.auth.uid`), mise à jour de la note et du nombre d'avis autorisée pour tout utilisateur authentifié.
+  - **Cache Hors-Ligne (`ENF3`) :** Mise en cache automatique dans `SharedPreferences` (`CACHED_CLOUD_LISTINGS`) pour une consultation fluide même sans connexion Internet.
+- **`listings/{listingId}/reviews/{reviewId}` (Avis & Évaluations) :** Sous-collection d'avis locataires reliés à l'utilisateur (`id`, `listingId`, `userId`, `userName`, `userAvatarUrl`, `rating`, `comment`, `createdAt`).
+  - **Recalcul Dynamique :** Chaque avis soumis recalcule instantanément la note moyenne exacte (arrondie à 1 décimale) et le nombre total d'avis sur le logement dans Firestore.
+  - **Composant Interactif :** Sélecteur 1 à 5 étoiles, commentaire et vérification d'authentification sur `ListingDetailScreen`.
+- **Seeder Cloud Tunisien Idempotent (`FirestoreCloudSeeder`) :**
+  - **10 comptes tunisiens réalistes** (mot de passe universel `Sokna2026!`) : 6 propriétaires (`amine.benali@sokna.tn`, `salma.trabelsi@sokna.tn`, `youssef.gharbi@sokna.tn`, `ons.mansouri@sokna.tn`, `mehdi.bouazizi@sokna.tn`, `nourhene.khelifi@sokna.tn`) et 4 locataires (`aziz.chaabane@sokna.tn`, `meriem.jaziri@sokna.tn`, `bilel.hammami@sokna.tn`, `ines.dridi@sokna.tn`).
+  - **16 annonces tunisiennes authentiques** et **36 avis locataires réalistes** répartis sur Bizerte, Tunis, La Marsa, Gammarth, Hammamet, Nabeul, Sousse, Monastir, Mahdia et Sfax.
+  - **Auto-seed au démarrage** si la base est vide et **sélecteur de comptes démo 1-clic** sur l'écran `ProfileScreen`.
 - **Favoris par Utilisateur & Cache Hybride :** Les favoris sont synchronisés sur Firestore dans `users/{uid}.savedListingIds` et immédiatement mis en miroir dans `SharedPreferences` (`ENF3`, `EF7`).
 - **Espace Propriétaire Dédié :** L'écran de profil affiche la section **« Mes annonces publiées »** permettant à l'utilisateur connecté de consulter ses biens et de les supprimer avec confirmation (`DeleteListingUseCase`).
 
