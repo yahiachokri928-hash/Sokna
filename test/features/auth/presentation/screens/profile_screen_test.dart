@@ -14,7 +14,7 @@ class MockAuthBloc extends Bloc<AuthEvent, AuthState> implements AuthBloc {
 }
 
 void main() {
-  testWidgets('ProfileScreen renders Mode Invité and Tunisian demo accounts when in unauthenticated guest mode', (tester) async {
+  testWidgets('ProfileScreen renders clean Mode Invité view without demo accounts when unauthenticated', (tester) async {
     final mockAuthBloc = MockAuthBloc(UnAuthenticatedState());
     final switchThemeBloc = SwitchthemeBloc();
 
@@ -35,6 +35,10 @@ void main() {
     expect(find.text(PROFILE_GUEST_FEATURE_FAVORITES), findsOneWidget);
     expect(find.text(PROFILE_GUEST_FEATURE_POST), findsOneWidget);
     expect(find.text(PROFILE_GUEST_FEATURE_REVIEWS), findsOneWidget);
-    expect(find.text(PROFILE_DEMO_ACCOUNTS_EXPANSION_TITLE), findsOneWidget);
+    expect(find.text(AUTH_LOGIN_BUTTON), findsOneWidget);
+    expect(find.text(AUTH_CREATE_ACCOUNT_BUTTON), findsOneWidget);
+
+    // Verify demo quick-login expansion tile is not present
+    expect(find.byType(ExpansionTile), findsNothing);
   });
 }

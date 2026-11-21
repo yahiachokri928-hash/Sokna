@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/firebase/firestore_cloud_seeder.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
@@ -21,9 +20,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _isDemoExpanded = true;
-  String? _loggingInEmail;
-
   void _confirmDeleteListing(BuildContext context, ListingEntity listing) {
     final theme = Theme.of(context);
     showDialog(
@@ -54,16 +50,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
-  }
-
-  void _loginAsDemoAccount(BuildContext ctx, TunisianDemoAccount account) {
-    setState(() => _loggingInEmail = account.email);
-    ctx.read<AuthBloc>().add(
-          LoginEvent(
-            email: account.email,
-            password: account.password,
-          ),
-        );
   }
 
   void _showEditProfileModal(BuildContext context, UserEntity currentUser) {
@@ -236,32 +222,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: const Text(AUTH_PROFILE_TITLE),
       ),
-      body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthenticatedState && _loggingInEmail != null) {
-            setState(() => _loggingInEmail = null);
-            SnackBarMessage.showSuccessSnackBar(
-              context: context,
-              message: PROFILE_DEMO_LOGIN_SUCCESS,
-            );
-          } else if (state is AuthErrorState && _loggingInEmail != null) {
-            setState(() => _loggingInEmail = null);
-            SnackBarMessage.showErrorSnackBar(
-              context: context,
-              message: state.message,
-            );
-          }
-        },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              if (state is AuthenticatedState) {
-                return _buildAuthenticatedProfile(context, theme, state.user);
-              }
-              return _buildGuestProfile(context, theme);
-            },
-          ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            if (state is AuthenticatedState) {
+              return _buildAuthenticatedProfile(context, theme, state.user);
+            }
+            return _buildGuestProfile(context, theme);
+          },
         ),
       ),
     );
@@ -352,11 +321,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
 
-        const SizedBox(height: 16.0),
-
-        // Read-Only Tunisian Test Accounts Selector for APK Testers
-        _buildDemoAccountsCard(context, theme),
-
         const SizedBox(height: 12.0),
 
         // Theme Switcher Card
@@ -388,133 +352,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildDemoAccountsCard(BuildContext context, ThemeData theme) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-        side: BorderSide(
-          color: theme.colorScheme.primary.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Theme(
-        data: theme.copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: _isDemoExpanded,
-          onExpansionChanged: (expanded) {
-            setState(() => _isDemoExpanded = expanded);
-          },
-          leading: CircleAvatar(
-            backgroundColor: theme.colorScheme.primaryContainer,
-            child: Icon(
-              Icons.switch_account_rounded,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          title: Text(
-            PROFILE_DEMO_ACCOUNTS_EXPANSION_TITLE,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          subtitle: Text(
-            PROFILE_DEMO_ACCOUNTS_EXPANSION_SUBTITLE,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          childrenPadding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
-          children: [
-            const Divider(height: 16.0),
-            // Landlords Header
-            Row(
-              children: [
-                const Icon(Icons.home_work_rounded, size: 16.0),
-                const SizedBox(width: 6.0),
-                Text(
-                  PROFILE_DEMO_OWNERS_SECTION,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8.0),
-            ...FirestoreCloudSeeder.demoLandlords.map(
-              (account) => _buildDemoAccountTile(context, theme, account),
-            ),
-            const Divider(height: 24.0),
-            // Tenants Header
-            Row(
-              children: [
-                const Icon(Icons.person_rounded, size: 16.0),
-                const SizedBox(width: 6.0),
-                Text(
-                  PROFILE_DEMO_TENANTS_SECTION,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8.0),
-            ...FirestoreCloudSeeder.demoTenants.map(
-              (account) => _buildDemoAccountTile(context, theme, account),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDemoAccountTile(
-    BuildContext context,
-    ThemeData theme,
-    TunisianDemoAccount account,
-  ) {
-    final isCurrent = _loggingInEmail == account.email;
-    return ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      leading: CircleAvatar(
-        radius: 16.0,
-        backgroundImage: NetworkImage(account.avatarUrl),
-        onBackgroundImageError: (_, _) {},
-        backgroundColor: theme.colorScheme.primaryContainer,
-        child: (account.avatarUrl.isEmpty)
-            ? Text(
-                account.name.isNotEmpty ? account.name[0] : 'U',
-                style: TextStyle(
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
-                ),
-              )
-            : null,
-      ),
-      title: Text(
-        account.name,
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ),
-      subtitle: Text(account.subtitle),
-      trailing: ElevatedButton(
-        onPressed: _loggingInEmail != null ? null : () => _loginAsDemoAccount(context, account),
-        style: ElevatedButton.styleFrom(
-          visualDensity: VisualDensity.compact,
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-        ),
-        child: isCurrent
-            ? const SizedBox(
-                width: 14.0,
-                height: 14.0,
-                child: CircularProgressIndicator(strokeWidth: 2.0),
-              )
-            : const Text(AUTH_LOGIN_BUTTON),
-      ),
     );
   }
 
