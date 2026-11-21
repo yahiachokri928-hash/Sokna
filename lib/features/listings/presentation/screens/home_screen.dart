@@ -249,7 +249,7 @@ class HomeScreen extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 80.0),
                       itemCount: listings.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 16.0),
+                      separatorBuilder: (context, index) => const SizedBox(height: 16.0),
                       itemBuilder: (context, index) {
                         final listing = listings[index];
                         return ListingCard(

@@ -116,9 +116,12 @@ class ListingDetailScreen extends StatelessWidget {
     if (item == null && listingId != null) {
       final state = context.read<ListingsBloc>().state;
       if (state is ListingsLoaded) {
-        try {
-          item = state.allListings.firstWhere((e) => e.id == listingId);
-        } catch (_) {}
+        for (final e in state.allListings) {
+          if (e.id == listingId) {
+            item = e;
+            break;
+          }
+        }
       }
     }
 

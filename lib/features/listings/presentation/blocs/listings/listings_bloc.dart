@@ -1,10 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../../core/strings/messages.dart';
-import '../../domain/entities/listing_entity.dart';
-import '../../domain/usecases/add_listing.dart';
-import '../../domain/usecases/get_listings.dart';
+import 'package:sokna/core/strings/messages.dart';
+import 'package:sokna/features/listings/domain/entities/listing_entity.dart';
+import 'package:sokna/features/listings/domain/usecases/add_listing.dart';
+import 'package:sokna/features/listings/domain/usecases/get_listings.dart';
 
 part 'listings_event.dart';
 part 'listings_state.dart';

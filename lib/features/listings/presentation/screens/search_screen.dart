@@ -284,7 +284,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   return ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 24.0),
                     itemCount: listings.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 16.0),
+                    separatorBuilder: (context, index) => const SizedBox(height: 16.0),
                     itemBuilder: (context, index) {
                       final item = listings[index];
                       return ListingCard(

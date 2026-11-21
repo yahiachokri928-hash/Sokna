@@ -29,7 +29,7 @@ class CategoryFilterBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         scrollDirection: Axis.horizontal,
         itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8.0),
+        separatorBuilder: (context, index) => const SizedBox(width: 8.0),
         itemBuilder: (context, index) {
           final category = categories[index];
           final isSelected = category.toLowerCase() == selectedCategory.toLowerCase();
