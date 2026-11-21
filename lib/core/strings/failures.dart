@@ -44,5 +44,8 @@ const String LISTING_DELETE_FAILURE_MESSAGE =
 const String AUTH_REQUIRED_FAILURE_MESSAGE =
     "Authentification requise pour effectuer cette action.";
 
+const String REVIEW_SUBMISSION_FAILURE_MESSAGE =
+    "Impossible de publier votre avis. Veuillez réessayer.";
+
 const String UNEXPECTED_FAILURE_MESSAGE =
     "Une erreur inattendue est survenue. Veuillez réessayer ultérieurement.";

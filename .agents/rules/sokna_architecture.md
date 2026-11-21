@@ -80,19 +80,22 @@ lib/
     ├── listings/
     │   ├── data/
     │   │   ├── datasources/listing_data_source.dart
-    │   │   ├── models/listing_model.dart
+    │   │   ├── models/{listing_model.dart, review_model.dart}
     │   │   └── repositories/listing_repository_impl.dart
     │   ├── domain/
-    │   │   ├── entities/listing_entity.dart
+    │   │   ├── entities/{listing_entity.dart, review_entity.dart}
     │   │   ├── repositories/listing_repository.dart
     │   │   └── usecases/
     │   │       ├── get_listings.dart
     │   │       ├── search_listings.dart
     │   │       ├── add_listing.dart
-    │   │       └── delete_listing.dart
+    │   │       ├── delete_listing.dart
+    │   │       ├── get_listing_reviews.dart
+    │   │       └── submit_review.dart
     │   └── presentation/
     │       ├── blocs/
     │       │   ├── listings/{listings_bloc.dart, listings_event.dart, listings_state.dart}
+    │       │   ├── reviews/{reviews_bloc.dart, reviews_event.dart, reviews_state.dart}
     │       │   └── theme/{switchtheme_bloc.dart, switchtheme_event.dart, switchtheme_state.dart}
     │       ├── screens/
     │       │   ├── home_screen.dart

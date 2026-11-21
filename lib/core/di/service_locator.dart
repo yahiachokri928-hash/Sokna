@@ -25,9 +25,12 @@ import '../../features/listings/data/repositories/listing_repository_impl.dart';
 import '../../features/listings/domain/repositories/listing_repository.dart';
 import '../../features/listings/domain/usecases/add_listing.dart';
 import '../../features/listings/domain/usecases/delete_listing.dart';
+import '../../features/listings/domain/usecases/get_listing_reviews.dart';
 import '../../features/listings/domain/usecases/get_listings.dart';
 import '../../features/listings/domain/usecases/search_listings.dart';
+import '../../features/listings/domain/usecases/submit_review.dart';
 import '../../features/listings/presentation/blocs/listings/listings_bloc.dart';
+import '../../features/listings/presentation/blocs/reviews/reviews_bloc.dart';
 import '../../features/listings/presentation/blocs/theme/switchtheme_bloc.dart';
 import '../firebase/auth_service.dart';
 import '../firebase/firestore_service.dart';
@@ -83,6 +86,8 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton(() => SearchListingsUseCase(sl<ListingRepository>()));
   sl.registerLazySingleton(() => AddListingUseCase(sl<ListingRepository>()));
   sl.registerLazySingleton(() => DeleteListingUseCase(sl<ListingRepository>()));
+  sl.registerLazySingleton(() => GetListingReviewsUseCase(sl<ListingRepository>()));
+  sl.registerLazySingleton(() => SubmitReviewUseCase(sl<ListingRepository>()));
 
   // BLoCs
   sl.registerFactory(
@@ -90,6 +95,13 @@ Future<void> initServiceLocator() async {
       getListingsUseCase: sl<GetListingsUseCase>(),
       addListingUseCase: sl<AddListingUseCase>(),
       deleteListingUseCase: sl<DeleteListingUseCase>(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => ReviewsBloc(
+      getListingReviewsUseCase: sl<GetListingReviewsUseCase>(),
+      submitReviewUseCase: sl<SubmitReviewUseCase>(),
     ),
   );
 

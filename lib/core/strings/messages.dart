@@ -145,3 +145,16 @@ const String ACTION_RETRY = "Réessayer";
 const String ACTION_CANCEL = "Annuler";
 const String ACTION_CONFIRM = "Confirmer";
 const String ACTION_CLOSE = "Fermer";
+
+// Reviews section (Phase C2)
+const String DETAIL_REVIEWS_TITLE = "Avis des locataires";
+const String DETAIL_NO_REVIEWS = "Aucun avis pour le moment. Soyez le premier à donner votre avis !";
+const String DETAIL_ADD_REVIEW_TITLE = "Laisser un avis";
+const String DETAIL_REVIEW_RATING_LABEL = "Votre note";
+const String DETAIL_REVIEW_COMMENT_LABEL = "Votre commentaire";
+const String DETAIL_REVIEW_COMMENT_HINT = "Partagez votre expérience sur ce logement...";
+const String DETAIL_REVIEW_SUBMIT_BUTTON = "Publier mon avis";
+const String DETAIL_REVIEW_SUCCESS = "Votre avis a été publié avec succès !";
+const String DETAIL_REVIEW_LOGIN_PROMPT = "Veuillez vous connecter pour laisser un avis.";
+const String DETAIL_REVIEW_EMPTY_COMMENT = "Veuillez saisir un commentaire pour votre avis.";
+

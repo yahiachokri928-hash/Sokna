@@ -7,9 +7,11 @@ import '../../../../core/failures/failures.dart';
 import '../../../../core/network/network_info.dart';
 import '../../../../core/strings/failures.dart';
 import '../../domain/entities/listing_entity.dart';
+import '../../domain/entities/review_entity.dart';
 import '../../domain/repositories/listing_repository.dart';
 import '../datasources/listing_data_source.dart';
 import '../models/listing_model.dart';
+import '../models/review_model.dart';
 
 class ListingRepositoryImpl implements ListingRepository {
   final ListingDataSource dataSource;
@@ -69,6 +71,39 @@ class ListingRepositoryImpl implements ListingRepository {
 
     try {
       await dataSource.deleteListing(listingId);
+      return const Right(unit);
+    } on AuthException {
+      return const Left(AuthUnknownFailure(AUTH_REQUIRED_FAILURE_MESSAGE));
+    } on FirebaseException catch (e) {
+      return Left(ServerFailure(e.message ?? SERVER_FAILURE_MESSAGE));
+    } on ServerException {
+      return const Left(ServerFailure(SERVER_FAILURE_MESSAGE));
+    } catch (_) {
+      return const Left(UnexpectedFailure(UNEXPECTED_FAILURE_MESSAGE));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<ReviewEntity>>> getListingReviews(String listingId) async {
+    try {
+      final reviews = await dataSource.getListingReviews(listingId);
+      return Right(reviews);
+    } on ServerException {
+      return const Left(ServerFailure(SERVER_FAILURE_MESSAGE));
+    } catch (_) {
+      return const Left(UnexpectedFailure(UNEXPECTED_FAILURE_MESSAGE));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> submitReview(ReviewEntity review) async {
+    if (!await networkInfo.isConnected) {
+      return const Left(OfflineFailure(OFFLINE_FAILURE_MESSAGE));
+    }
+
+    try {
+      final model = ReviewModel.fromEntity(review);
+      await dataSource.submitReview(model);
       return const Right(unit);
     } on AuthException {
       return const Left(AuthUnknownFailure(AUTH_REQUIRED_FAILURE_MESSAGE));

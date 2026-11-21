@@ -1,17 +1,22 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
 import '../../../../core/firebase/auth_service.dart';
 import '../../../../core/firebase/firestore_service.dart';
+import '../../../../core/strings/failures.dart';
 import '../models/listing_model.dart';
+import '../models/review_model.dart';
 
 abstract class ListingDataSource {
   Future<List<ListingModel>> getListings();
   Future<List<ListingModel>> searchListings(String query);
   Future<void> addListing(ListingModel listing);
   Future<void> deleteListing(String listingId);
+  Future<List<ReviewModel>> getListingReviews(String listingId);
+  Future<void> submitReview(ReviewModel review);
 }
 
 class ListingDataSourceImpl implements ListingDataSource {
@@ -181,5 +186,55 @@ class ListingDataSourceImpl implements ListingDataSource {
       await firestoreService!.listingsCollection.doc(listingId).delete();
     }
     _sessionListings.removeWhere((item) => item.id == listingId);
+  }
+
+  @override
+  Future<List<ReviewModel>> getListingReviews(String listingId) async {
+    if (firestoreService == null) return [];
+    try {
+      final snapshot = await firestoreService!.listingsCollection
+          .doc(listingId)
+          .collection('reviews')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return snapshot.docs
+          .map((doc) => ReviewModel.fromFirestore(doc))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  @override
+  Future<void> submitReview(ReviewModel review) async {
+    if (firestoreService == null) {
+      throw ServerException();
+    }
+    final user = authService?.currentUser;
+    if (user == null) {
+      throw AuthException(AUTH_REQUIRED_FAILURE_MESSAGE);
+    }
+
+    final listingRef = firestoreService!.listingsCollection.doc(review.listingId);
+    final reviewRef = listingRef.collection('reviews').doc(user.uid);
+
+    await reviewRef.set(review.toFirestore(), SetOptions(merge: true));
+
+    // Recalculate average rating & review count
+    final reviewsSnapshot = await listingRef.collection('reviews').get();
+    if (reviewsSnapshot.docs.isNotEmpty) {
+      final int count = reviewsSnapshot.docs.length;
+      double total = 0.0;
+      for (final doc in reviewsSnapshot.docs) {
+        final r = (doc.data()['rating'] as num?)?.toDouble() ?? 5.0;
+        total += r;
+      }
+      final double average = double.parse((total / count).toStringAsFixed(1));
+      await listingRef.update({
+        'rating': average,
+        'reviewCount': count,
+      });
+    }
   }
 }

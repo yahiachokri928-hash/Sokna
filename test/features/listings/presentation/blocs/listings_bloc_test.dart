@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sokna/core/failures/failures.dart';
 import 'package:sokna/features/listings/domain/entities/listing_entity.dart';
+import 'package:sokna/features/listings/domain/entities/review_entity.dart';
 import 'package:sokna/features/listings/domain/repositories/listing_repository.dart';
 import 'package:sokna/features/listings/domain/usecases/add_listing.dart';
 import 'package:sokna/features/listings/domain/usecases/delete_listing.dart';
@@ -69,6 +70,14 @@ class MockListingRepository implements ListingRepository {
     listings.removeWhere((item) => item.id == listingId);
     return const Right(unit);
   }
+
+  @override
+  Future<Either<Failure, List<ReviewEntity>>> getListingReviews(String listingId) async =>
+      const Right([]);
+
+  @override
+  Future<Either<Failure, Unit>> submitReview(ReviewEntity review) async =>
+      const Right(unit);
 }
 
 void main() {
