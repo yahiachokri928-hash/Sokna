@@ -47,5 +47,8 @@ const String AUTH_REQUIRED_FAILURE_MESSAGE =
 const String REVIEW_SUBMISSION_FAILURE_MESSAGE =
     "Impossible de publier votre avis. Veuillez réessayer.";
 
+const String SEED_FAILURE_MESSAGE =
+    "Impossible de peupler la base de données Cloud. Vérifiez votre connexion.";
+
 const String UNEXPECTED_FAILURE_MESSAGE =
     "Une erreur inattendue est survenue. Veuillez réessayer ultérieurement.";

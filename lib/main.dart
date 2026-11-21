@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/di/service_locator.dart';
+import 'core/firebase/firestore_cloud_seeder.dart';
 import 'core/router/app_router.dart';
 import 'core/strings/messages.dart';
 import 'core/themes/theme_manager.dart';
@@ -25,6 +26,13 @@ Future<void> main() async {
   }
 
   await initServiceLocator();
+
+  // Auto-seed cloud database if empty on startup
+  try {
+    await sl<FirestoreCloudSeeder>().seedCloudDatabase();
+  } catch (_) {
+    // Allows offline and desktop/mock execution
+  }
 
   runApp(const SoknaApp());
 }

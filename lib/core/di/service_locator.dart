@@ -33,6 +33,7 @@ import '../../features/listings/presentation/blocs/listings/listings_bloc.dart';
 import '../../features/listings/presentation/blocs/reviews/reviews_bloc.dart';
 import '../../features/listings/presentation/blocs/theme/switchtheme_bloc.dart';
 import '../firebase/auth_service.dart';
+import '../firebase/firestore_cloud_seeder.dart';
 import '../firebase/firestore_service.dart';
 import '../network/network_info.dart';
 
@@ -60,6 +61,13 @@ Future<void> initServiceLocator() async {
 
   sl.registerLazySingleton<FirestoreService>(
     () => FirestoreService(),
+  );
+
+  sl.registerLazySingleton<FirestoreCloudSeeder>(
+    () => FirestoreCloudSeeder(
+      authService: sl<AuthService>(),
+      firestoreService: sl<FirestoreService>(),
+    ),
   );
 
   //! Feature: Listings

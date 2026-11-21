@@ -158,3 +158,16 @@ const String DETAIL_REVIEW_SUCCESS = "Votre avis a été publié avec succès !"
 const String DETAIL_REVIEW_LOGIN_PROMPT = "Veuillez vous connecter pour laisser un avis.";
 const String DETAIL_REVIEW_EMPTY_COMMENT = "Veuillez saisir un commentaire pour votre avis.";
 
+// Demo accounts & Cloud Seeder (Phase C3)
+const String PROFILE_DEMO_ACCOUNTS_TITLE = "Comptes Démo Tunisiens (Connexion 1-clic)";
+const String PROFILE_DEMO_ACCOUNTS_SUBTITLE = "Connectez-vous instantanément en un clic pour tester l'application";
+const String PROFILE_DEMO_OWNERS_SECTION = "Comptes Bailleurs (Propriétaires)";
+const String PROFILE_DEMO_TENANTS_SECTION = "Comptes Locataires";
+const String PROFILE_DEMO_SEED_BUTTON = "Peupler / Réinitialiser la base Cloud";
+const String PROFILE_DEMO_SEED_PROGRESS = "Initialisation de la base Cloud en cours...";
+const String PROFILE_DEMO_SEED_SUCCESS = "Base de données Cloud initialisée avec succès !";
+const String PROFILE_DEMO_SEED_CONFIRM_TITLE = "Réinitialiser la base Cloud";
+const String PROFILE_DEMO_SEED_CONFIRM_MESSAGE = "Voulez-vous peupler ou réinitialiser la base de données Cloud avec les annonces, profils et avis tunisiens ?";
+const String PROFILE_DEMO_LOGIN_SUCCESS = "Connexion réussie avec le compte démo !";
+
+

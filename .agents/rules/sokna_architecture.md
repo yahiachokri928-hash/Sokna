@@ -39,7 +39,8 @@ lib/
 │   │   └── listing_failures.dart
 │   ├── firebase/
 │   │   ├── auth_service.dart
-│   │   └── firestore_service.dart
+│   │   ├── firestore_service.dart
+│   │   └── firestore_cloud_seeder.dart
 │   ├── network/
 │   │   └── network_info.dart
 │   ├── router/
