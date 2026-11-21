@@ -7,4 +7,5 @@ abstract class UserRepository {
   Future<Either<Failure, Unit>> updateUser(UserEntity user);
   Future<Either<Failure, Unit>> signIn(UserEntity user);
   Future<Either<Failure, Unit>> signOut();
+  Future<Either<Failure, UserEntity?>> getCurrentUserProfile();
 }

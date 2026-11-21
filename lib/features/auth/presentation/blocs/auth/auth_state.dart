@@ -16,7 +16,7 @@ class LogoutPendingState extends AuthState {}
 class AuthenticatedState extends AuthState {
   final UserEntity user;
 
-  const AuthenticatedState(this.user);
+  const AuthenticatedState({required this.user});
 
   @override
   List<Object?> get props => [user];

@@ -20,13 +20,16 @@ class _RegisterFormState extends State<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  String _selectedRole = AUTH_ROLE_TENANT;
   bool _obscurePassword = true;
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -39,6 +42,10 @@ class _RegisterFormState extends State<RegisterForm> {
                 name: _nameController.text.trim(),
                 email: _emailController.text.trim(),
                 password: _passwordController.text.trim(),
+                phone: _phoneController.text.trim().isNotEmpty
+                    ? _phoneController.text.trim()
+                    : null,
+                role: _selectedRole,
               ),
             ),
           );
@@ -86,6 +93,45 @@ class _RegisterFormState extends State<RegisterForm> {
                 return AUTH_INVALID_EMAIL_MESSAGE;
               }
               return null;
+            },
+          ),
+          const SizedBox(height: 16.0),
+
+          // Phone (optional)
+          TextFormField(
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+            decoration: const InputDecoration(
+              labelText: AUTH_FIELD_PHONE,
+              hintText: AUTH_FIELD_PHONE_HINT,
+              prefixIcon: Icon(Icons.phone_outlined),
+            ),
+          ),
+          const SizedBox(height: 16.0),
+
+          // Role dropdown
+          DropdownButtonFormField<String>(
+            initialValue: _selectedRole,
+            decoration: const InputDecoration(
+              labelText: AUTH_FIELD_ROLE,
+              prefixIcon: Icon(Icons.badge_outlined),
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: AUTH_ROLE_TENANT,
+                child: Text(AUTH_ROLE_TENANT),
+              ),
+              DropdownMenuItem(
+                value: AUTH_ROLE_OWNER,
+                child: Text(AUTH_ROLE_OWNER),
+              ),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  _selectedRole = value;
+                });
+              }
             },
           ),
           const SizedBox(height: 16.0),

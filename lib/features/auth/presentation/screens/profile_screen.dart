@@ -7,10 +7,165 @@ import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
 import '../../../favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import '../../../listings/presentation/blocs/theme/switchtheme_bloc.dart';
+import '../../domain/entities/user_entity.dart';
 import '../blocs/auth/auth_bloc.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  void _showEditProfileModal(BuildContext context, UserEntity currentUser) {
+    final theme = Theme.of(context);
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController(text: currentUser.name ?? '');
+    final phoneController =
+        TextEditingController(text: currentUser.phone ?? '');
+    String selectedRole = currentUser.role.isNotEmpty
+        ? currentUser.role
+        : AUTH_ROLE_TENANT;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      ),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (modalContext, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20.0,
+                right: 20.0,
+                top: 20.0,
+                bottom: MediaQuery.of(modalContext).viewInsets.bottom + 20.0,
+              ),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40.0,
+                          height: 4.0,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.outlineVariant,
+                            borderRadius: BorderRadius.circular(2.0),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Text(
+                        AUTH_EDIT_PROFILE_TITLE,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20.0),
+                      TextFormField(
+                        controller: nameController,
+                        decoration: const InputDecoration(
+                          labelText: AUTH_FIELD_NAME,
+                          prefixIcon: Icon(Icons.person_outline_rounded),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return VALIDATION_REQUIRED;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextFormField(
+                        controller: phoneController,
+                        keyboardType: TextInputType.phone,
+                        decoration: const InputDecoration(
+                          labelText: AUTH_FIELD_PHONE,
+                          hintText: AUTH_FIELD_PHONE_HINT,
+                          prefixIcon: Icon(Icons.phone_outlined),
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      DropdownButtonFormField<String>(
+                        initialValue: selectedRole,
+                        decoration: const InputDecoration(
+                          labelText: AUTH_FIELD_ROLE,
+                          prefixIcon: Icon(Icons.badge_outlined),
+                        ),
+                        items: const [
+                          DropdownMenuItem(
+                            value: AUTH_ROLE_TENANT,
+                            child: Text(AUTH_ROLE_TENANT),
+                          ),
+                          DropdownMenuItem(
+                            value: AUTH_ROLE_OWNER,
+                            child: Text(AUTH_ROLE_OWNER),
+                          ),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            setModalState(() {
+                              selectedRole = val;
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 24.0),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.pop(modalContext),
+                              child: const Text(ACTION_CANCEL),
+                            ),
+                          ),
+                          const SizedBox(width: 12.0),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (formKey.currentState!.validate()) {
+                                  final updatedUser = UserEntity(
+                                    uid: currentUser.uid,
+                                    name: nameController.text.trim(),
+                                    email: currentUser.email,
+                                    profilURL: currentUser.profilURL,
+                                    phone: phoneController.text.trim().isNotEmpty
+                                        ? phoneController.text.trim()
+                                        : null,
+                                    role: selectedRole,
+                                    createdAt: currentUser.createdAt,
+                                  );
+
+                                  context.read<AuthBloc>().add(
+                                        UpdateUserProfileEvent(updatedUser),
+                                      );
+
+                                  Navigator.pop(modalContext);
+
+                                  SnackBarMessage.showSuccessSnackBar(
+                                    context: context,
+                                    message: AUTH_PROFILE_UPDATE_SUCCESS,
+                                  );
+                                }
+                              },
+                              child: const Text(AUTH_SAVE_PROFILE_BUTTON),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,16 +183,28 @@ class ProfileScreen extends StatelessWidget {
             BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) {
                 final isAuthenticated = state is AuthenticatedState;
+                final user = isAuthenticated ? state.user : null;
                 final userName = isAuthenticated &&
-                        state.user.name != null &&
-                        state.user.name!.isNotEmpty
-                    ? state.user.name!
+                        user?.name != null &&
+                        user!.name!.isNotEmpty
+                    ? user.name!
                     : 'Yahia Chokri';
                 final userEmail = isAuthenticated &&
-                        state.user.email != null &&
-                        state.user.email!.isNotEmpty
-                    ? state.user.email!
+                        user?.email != null &&
+                        user!.email!.isNotEmpty
+                    ? user.email!
                     : 'yahia.chokri@isetbizerte.tn';
+                final userRole = isAuthenticated && user != null
+                    ? user.role
+                    : '$AUTH_ROLE_TENANT / $AUTH_ROLE_LANDLORD';
+                final userPhone = isAuthenticated &&
+                        user?.phone != null &&
+                        user!.phone!.isNotEmpty
+                    ? user.phone!
+                    : AUTH_NO_PHONE;
+                final membershipText = isAuthenticated && user?.createdAt != null
+                    ? '$AUTH_MEMBER_SINCE ${user!.createdAt!.year}'
+                    : AUTH_MEMBERSHIP_DATE;
 
                 return Card(
                   elevation: 2,
@@ -79,25 +246,45 @@ class ProfileScreen extends StatelessWidget {
                         const SizedBox(height: 12.0),
                         Wrap(
                           spacing: 8.0,
+                          runSpacing: 8.0,
+                          alignment: WrapAlignment.center,
                           children: [
                             Chip(
-                              avatar: const Icon(Icons.verified_user_rounded, size: 16.0),
-                              label: Text(
-                                isAuthenticated
-                                    ? AUTH_STATUS_VERIFIED
-                                    : '$AUTH_ROLE_TENANT / $AUTH_ROLE_LANDLORD',
+                              avatar: const Icon(Icons.badge_outlined, size: 16.0),
+                              label: Text(userRole),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            if (isAuthenticated)
+                              Chip(
+                                avatar: const Icon(Icons.phone_outlined, size: 16.0),
+                                label: Text(userPhone),
+                                visualDensity: VisualDensity.compact,
                               ),
+                            Chip(
+                              avatar: const Icon(Icons.calendar_today_rounded, size: 16.0),
+                              label: Text(membershipText),
                               visualDensity: VisualDensity.compact,
                             ),
-                            const Chip(
-                              avatar: Icon(Icons.calendar_today_rounded, size: 16.0),
-                              label: Text(AUTH_MEMBERSHIP_DATE),
-                              visualDensity: VisualDensity.compact,
-                            ),
+                            if (isAuthenticated)
+                              const Chip(
+                                avatar: Icon(Icons.verified_user_rounded, size: 16.0),
+                                label: Text(AUTH_STATUS_VERIFIED),
+                                visualDensity: VisualDensity.compact,
+                              ),
                           ],
                         ),
-                        const SizedBox(height: 16.0),
-                        if (isAuthenticated)
+                        const SizedBox(height: 20.0),
+                        if (isAuthenticated) ...[
+                          ElevatedButton.icon(
+                            onPressed: () =>
+                                _showEditProfileModal(context, state.user),
+                            icon: const Icon(Icons.edit_outlined),
+                            label: const Text(AUTH_EDIT_PROFILE_BUTTON),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(48.0),
+                            ),
+                          ),
+                          const SizedBox(height: 10.0),
                           OutlinedButton.icon(
                             onPressed: () {
                               context.read<AuthBloc>().add(const LogoutEvent());
@@ -113,13 +300,14 @@ class ProfileScreen extends StatelessWidget {
                               foregroundColor: theme.colorScheme.error,
                               side: BorderSide(color: theme.colorScheme.error),
                             ),
-                          )
-                        else
+                          ),
+                        ] else
                           Row(
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () => context.push(AppRoutes.login),
+                                  onPressed: () =>
+                                      context.push(AppRoutes.login),
                                   style: ElevatedButton.styleFrom(
                                     minimumSize: const Size.fromHeight(48.0),
                                   ),
@@ -129,7 +317,8 @@ class ProfileScreen extends StatelessWidget {
                               const SizedBox(width: 12.0),
                               Expanded(
                                 child: OutlinedButton(
-                                  onPressed: () => context.push(AppRoutes.register),
+                                  onPressed: () =>
+                                      context.push(AppRoutes.register),
                                   style: OutlinedButton.styleFrom(
                                     minimumSize: const Size.fromHeight(48.0),
                                   ),

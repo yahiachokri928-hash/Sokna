@@ -35,5 +35,8 @@ const String AUTH_INVALID_EMAIL_MESSAGE =
 const String AUTH_NETWORK_REQUEST_FAILED_MESSAGE =
     "Connexion impossible aux serveurs d'authentification. Vérifiez votre réseau.";
 
+const String PROFILE_UPDATE_FAILURE_MESSAGE =
+    "Impossible de mettre à jour le profil. Veuillez vérifier vos informations.";
+
 const String UNEXPECTED_FAILURE_MESSAGE =
     "Une erreur inattendue est survenue. Veuillez réessayer ultérieurement.";

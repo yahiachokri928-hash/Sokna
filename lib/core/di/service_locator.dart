@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/auth/data/datasources/user_data_source.dart';
 import '../../features/auth/data/repositories/user_repository_impl.dart';
 import '../../features/auth/domain/repositories/user_repository.dart';
+import '../../features/auth/domain/usecases/get_current_user_profile.dart';
 import '../../features/auth/domain/usecases/register_user.dart';
 import '../../features/auth/domain/usecases/sign_in_user.dart';
 import '../../features/auth/domain/usecases/sign_out_user.dart';
@@ -113,7 +114,10 @@ Future<void> initServiceLocator() async {
   //! Feature: Auth
   // Data Sources
   sl.registerLazySingleton<UserDataSource>(
-    () => UserDataSourceImpl(authService: sl<AuthService>()),
+    () => UserDataSourceImpl(
+      authService: sl<AuthService>(),
+      firestoreService: sl<FirestoreService>(),
+    ),
   );
 
   // Repositories
@@ -129,12 +133,17 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton(() => SignInUserUseCase(sl<UserRepository>()));
   sl.registerLazySingleton(() => SignOutUserUseCase(sl<UserRepository>()));
   sl.registerLazySingleton(() => UpdateUserUseCase(sl<UserRepository>()));
+  sl.registerLazySingleton(
+    () => GetCurrentUserProfileUseCase(sl<UserRepository>()),
+  );
 
   // BLoCs
   sl.registerFactory(
     () => AuthBloc(
       signInUserUseCase: sl<SignInUserUseCase>(),
       signOutUserUseCase: sl<SignOutUserUseCase>(),
+      getCurrentUserProfileUseCase: sl<GetCurrentUserProfileUseCase>(),
+      updateUserUseCase: sl<UpdateUserUseCase>(),
       authService: sl<AuthService>(),
     ),
   );

@@ -69,7 +69,8 @@ lib/
     │   │       ├── register_user.dart
     │   │       ├── sign_in_user.dart
     │   │       ├── sign_out_user.dart
-    │   │       └── update_user.dart
+    │   │       ├── update_user.dart
+    │   │       └── get_current_user_profile.dart
     │   └── presentation/
     │       ├── blocs/
     │       │   ├── auth/{auth_bloc.dart, auth_event.dart, auth_state.dart}

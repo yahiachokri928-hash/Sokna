@@ -119,6 +119,15 @@ const String AUTH_LOGOUT_SUCCESS = "Vous avez été déconnecté.";
 const String AUTH_PROFILE_TITLE = "Mon Profil";
 const String AUTH_ROLE_TENANT = "Locataire";
 const String AUTH_ROLE_LANDLORD = "Bailleur";
+const String AUTH_ROLE_OWNER = "Propriétaire";
+const String AUTH_FIELD_ROLE = "Rôle de l'utilisateur";
+const String AUTH_EDIT_PROFILE_BUTTON = "Modifier le profil";
+const String AUTH_EDIT_PROFILE_TITLE = "Modifier mon profil";
+const String AUTH_SAVE_PROFILE_BUTTON = "Enregistrer les modifications";
+const String AUTH_PROFILE_UPDATE_SUCCESS = "Profil mis à jour avec succès !";
+const String AUTH_FIELD_PHONE_HINT = "+216 XX XXX XXX";
+const String AUTH_NO_PHONE = "Non renseigné";
+const String AUTH_MEMBER_SINCE = "Membre depuis";
 const String AUTH_STATUS_VERIFIED = "Compte vérifié";
 const String AUTH_MEMBERSHIP_DATE = "Membre depuis 2026";
 

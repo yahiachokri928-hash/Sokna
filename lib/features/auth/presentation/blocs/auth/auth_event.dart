@@ -29,3 +29,12 @@ class AuthUserChangedEvent extends AuthEvent {
   @override
   List<Object?> get props => [user];
 }
+
+class UpdateUserProfileEvent extends AuthEvent {
+  final UserEntity updatedUser;
+
+  const UpdateUserProfileEvent(this.updatedUser);
+
+  @override
+  List<Object?> get props => [updatedUser];
+}

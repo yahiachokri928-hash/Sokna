@@ -31,6 +31,8 @@ class UserRepositoryImpl implements UserRepository {
       return const Right(unit);
     } on FirebaseAuthException catch (e) {
       return Left(_mapFirebaseAuthException(e));
+    } on FirebaseException catch (e) {
+      return Left(ServerFailure(e.message ?? SERVER_FAILURE_MESSAGE));
     } catch (_) {
       return const Left(UnexpectedFailure(UNEXPECTED_FAILURE_MESSAGE));
     }
@@ -48,6 +50,8 @@ class UserRepositoryImpl implements UserRepository {
       return const Right(unit);
     } on FirebaseAuthException catch (e) {
       return Left(_mapFirebaseAuthException(e));
+    } on FirebaseException catch (e) {
+      return Left(ServerFailure(e.message ?? SERVER_FAILURE_MESSAGE));
     } catch (_) {
       return const Left(UnexpectedFailure(UNEXPECTED_FAILURE_MESSAGE));
     }
@@ -70,10 +74,29 @@ class UserRepositoryImpl implements UserRepository {
     }
 
     try {
-      if (user.name != null) {
-        await remoteDataSource.updateUserName(user.name!);
-      }
+      final userModel = UserModel.fromEntity(user);
+      await remoteDataSource.updateUser(userModel);
       return const Right(unit);
+    } on FirebaseAuthException catch (e) {
+      return Left(_mapFirebaseAuthException(e));
+    } on FirebaseException catch (e) {
+      return Left(ServerFailure(e.message ?? SERVER_FAILURE_MESSAGE));
+    } catch (_) {
+      return const Left(UnexpectedFailure(UNEXPECTED_FAILURE_MESSAGE));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity?>> getCurrentUserProfile() async {
+    if (!await networkInfo.isConnected) {
+      return const Left(OfflineFailure(OFFLINE_FAILURE_MESSAGE));
+    }
+
+    try {
+      final profile = await remoteDataSource.getCurrentUserProfile();
+      return Right(profile);
+    } on FirebaseException catch (e) {
+      return Left(ServerFailure(e.message ?? SERVER_FAILURE_MESSAGE));
     } catch (_) {
       return const Left(UnexpectedFailure(UNEXPECTED_FAILURE_MESSAGE));
     }
