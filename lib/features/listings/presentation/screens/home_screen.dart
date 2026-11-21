@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
+import '../../../../core/utils/snack_bar_message.dart';
 import '../../../../core/widgets/loading_widget.dart';
+import '../../../favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import '../blocs/listings/listings_bloc.dart';
 import '../widgets/category_filter_bar.dart';
 import '../widgets/custom_empty_state.dart';
@@ -244,20 +246,39 @@ class HomeScreen extends StatelessWidget {
                       );
                     }
 
-                    return ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 80.0),
-                      itemCount: listings.length,
-                      separatorBuilder: (context, index) => const SizedBox(height: 16.0),
-                      itemBuilder: (context, index) {
-                        final listing = listings[index];
-                        return ListingCard(
-                          listing: listing,
-                          onTap: () {
-                            context.push(
-                              AppRoutes.listingDetail,
-                              extra: listing,
+                    return BlocBuilder<SavedListingsBloc, SavedListingsState>(
+                      builder: (context, savedState) {
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 80.0),
+                          itemCount: listings.length,
+                          separatorBuilder: (context, index) => const SizedBox(height: 16.0),
+                          itemBuilder: (context, index) {
+                            final listing = listings[index];
+                            final isFav = savedState is SavedListingsLoaded &&
+                                savedState.isFavorite(listing.id);
+
+                            return ListingCard(
+                              listing: listing,
+                              isFavorite: isFav,
+                              onTap: () {
+                                context.push(
+                                  AppRoutes.listingDetail,
+                                  extra: listing,
+                                );
+                              },
+                              onFavoriteToggle: () {
+                                context
+                                    .read<SavedListingsBloc>()
+                                    .add(ToggleSavedListingEvent(listing.id));
+                                SnackBarMessage.showSuccessSnackBar(
+                                  context: context,
+                                  message: isFav
+                                      ? SNACKBAR_FAVORITE_REMOVED
+                                      : SNACKBAR_FAVORITE_ADDED,
+                                );
+                              },
                             );
                           },
                         );

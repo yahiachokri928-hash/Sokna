@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/profile_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
+import '../../features/favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import '../../features/favorites/presentation/screens/saved_screen.dart';
 import '../../features/listings/domain/entities/listing_entity.dart';
 import '../../features/listings/presentation/screens/home_screen.dart';
@@ -58,23 +60,45 @@ class AppRouter {
                     break;
                 }
               },
-              destinations: const [
-                NavigationDestination(
+              destinations: [
+                const NavigationDestination(
                   icon: Icon(Icons.home_outlined),
                   selectedIcon: Icon(Icons.home_rounded),
                   label: NAV_HOME,
                 ),
-                NavigationDestination(
+                const NavigationDestination(
                   icon: Icon(Icons.search_rounded),
                   selectedIcon: Icon(Icons.saved_search_rounded),
                   label: NAV_SEARCH,
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.favorite_outline_rounded),
-                  selectedIcon: Icon(Icons.favorite_rounded),
+                  icon: BlocBuilder<SavedListingsBloc, SavedListingsState>(
+                    builder: (context, state) {
+                      final count = state is SavedListingsLoaded ? state.count : 0;
+                      if (count > 0) {
+                        return Badge.count(
+                          count: count,
+                          child: const Icon(Icons.favorite_outline_rounded),
+                        );
+                      }
+                      return const Icon(Icons.favorite_outline_rounded);
+                    },
+                  ),
+                  selectedIcon: BlocBuilder<SavedListingsBloc, SavedListingsState>(
+                    builder: (context, state) {
+                      final count = state is SavedListingsLoaded ? state.count : 0;
+                      if (count > 0) {
+                        return Badge.count(
+                          count: count,
+                          child: const Icon(Icons.favorite_rounded),
+                        );
+                      }
+                      return const Icon(Icons.favorite_rounded);
+                    },
+                  ),
                   label: NAV_SAVED,
                 ),
-                NavigationDestination(
+                const NavigationDestination(
                   icon: Icon(Icons.person_outline_rounded),
                   selectedIcon: Icon(Icons.person_rounded),
                   label: NAV_PROFILE,

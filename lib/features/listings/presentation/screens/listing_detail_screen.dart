@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/strings/messages.dart';
+import '../../../../core/utils/snack_bar_message.dart';
+import '../../../favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import '../../domain/entities/listing_entity.dart';
 import '../blocs/listings/listings_bloc.dart';
 import '../widgets/amenity_badge.dart';
@@ -221,6 +223,40 @@ class ListingDetailScreen extends StatelessWidget {
                 ),
               ),
             ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.85),
+                  child: BlocBuilder<SavedListingsBloc, SavedListingsState>(
+                    builder: (context, savedState) {
+                      final isFav = savedState is SavedListingsLoaded &&
+                          savedState.isFavorite(currentListing.id);
+                      return IconButton(
+                        icon: Icon(
+                          isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                          color: isFav
+                              ? theme.colorScheme.error
+                              : theme.colorScheme.onSurface,
+                        ),
+                        onPressed: () {
+                          context
+                              .read<SavedListingsBloc>()
+                              .add(ToggleSavedListingEvent(currentListing.id));
+                          SnackBarMessage.showSuccessSnackBar(
+                            context: context,
+                            message: isFav
+                                ? SNACKBAR_FAVORITE_REMOVED
+                                : SNACKBAR_FAVORITE_ADDED,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8.0),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
