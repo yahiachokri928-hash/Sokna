@@ -2,18 +2,24 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users collection: only the authenticated user can read or write their own profile
+    // Users collection: authenticated users can read public profile fields; only owner can write
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Listings collection: public read, authenticated owner-only mutation
+    // Listings collection: public read, owner mutation, rating updates
     match /listings/{listingId} {
       allow read: if true;
-      allow create: if request.auth != null &&
-        (request.resource.data.ownerId == request.auth.uid ||
-         (resource != null && resource.data.ownerId == request.auth.uid));
-      allow update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow update: if request.auth != null && (resource.data.ownerId == request.auth.uid || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'reviewCount']));
+
+      // Subcollection for listing reviews
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create, update, delete: if request.auth != null && request.auth.uid == reviewId;
+      }
     }
   }
 }

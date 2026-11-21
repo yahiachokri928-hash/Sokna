@@ -20,6 +20,8 @@ class ListingModel extends ListingEntity {
     required super.availableFrom,
     required super.description,
     super.ownerId,
+    super.ownerPhone,
+    super.ownerAvatarUrl,
   });
 
   factory ListingModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,8 @@ class ListingModel extends ListingEntity {
       availableFrom: json['availableFrom'] as String? ?? '',
       description: json['description'] as String? ?? '',
       ownerId: json['ownerId'] as String?,
+      ownerPhone: json['ownerPhone'] as String?,
+      ownerAvatarUrl: json['ownerAvatarUrl'] as String?,
     );
   }
 
@@ -63,6 +67,8 @@ class ListingModel extends ListingEntity {
       'availableFrom': availableFrom,
       'description': description,
       'ownerId': ownerId,
+      'ownerPhone': ownerPhone,
+      'ownerAvatarUrl': ownerAvatarUrl,
     };
   }
 
@@ -85,6 +91,8 @@ class ListingModel extends ListingEntity {
       availableFrom: entity.availableFrom,
       description: entity.description,
       ownerId: entity.ownerId,
+      ownerPhone: entity.ownerPhone,
+      ownerAvatarUrl: entity.ownerAvatarUrl,
     );
   }
 
@@ -108,6 +116,8 @@ class ListingModel extends ListingEntity {
       availableFrom: (data['availableFrom'] as String?) ?? '',
       description: (data['description'] as String?) ?? '',
       ownerId: data['ownerId'] as String?,
+      ownerPhone: data['ownerPhone'] as String?,
+      ownerAvatarUrl: data['ownerAvatarUrl'] as String?,
     );
   }
 
@@ -130,6 +140,8 @@ class ListingModel extends ListingEntity {
       'availableFrom': availableFrom,
       'description': description,
       'ownerId': ownerId,
+      'ownerPhone': ownerPhone,
+      'ownerAvatarUrl': ownerAvatarUrl,
       'createdAt': FieldValue.serverTimestamp(),
     };
   }

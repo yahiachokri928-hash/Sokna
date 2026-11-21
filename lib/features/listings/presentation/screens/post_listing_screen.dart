@@ -69,6 +69,8 @@ class PostListingScreen extends StatelessWidget {
                   availableFrom: newListing.availableFrom,
                   description: newListing.description,
                   ownerId: authUser.uid,
+                  ownerPhone: authUser.phone,
+                  ownerAvatarUrl: authUser.profilURL,
                 );
 
                 context.read<ListingsBloc>().add(AddListingEvent(listingWithOwner));

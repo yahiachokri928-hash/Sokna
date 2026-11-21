@@ -18,6 +18,8 @@ class ListingEntity extends Equatable {
   final String availableFrom;
   final String description;
   final String? ownerId;
+  final String? ownerPhone;
+  final String? ownerAvatarUrl;
 
   const ListingEntity({
     required this.id,
@@ -37,6 +39,8 @@ class ListingEntity extends Equatable {
     required this.availableFrom,
     required this.description,
     this.ownerId,
+    this.ownerPhone,
+    this.ownerAvatarUrl,
   });
 
   @override
@@ -58,5 +62,7 @@ class ListingEntity extends Equatable {
         availableFrom,
         description,
         ownerId,
+        ownerPhone,
+        ownerAvatarUrl,
       ];
 }

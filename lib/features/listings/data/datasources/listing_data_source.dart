@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
 import '../../../../core/firebase/auth_service.dart';
@@ -15,13 +15,12 @@ abstract class ListingDataSource {
 }
 
 class ListingDataSourceImpl implements ListingDataSource {
-  static const String remoteUrl =
-      'https://raw.githubusercontent.com/yahiachokri928-hash/Sokna/main/assets/data/listings.json';
-  static const String localAssetPath = 'assets/data/listings.json';
+  static const String cachedCloudListingsKey = 'CACHED_CLOUD_LISTINGS';
 
   final http.Client client;
   final FirestoreService? firestoreService;
   final AuthService? authService;
+  final SharedPreferences? sharedPreferences;
 
   // In-memory storage for newly added listings during the app session
   final List<ListingModel> _sessionListings = [];
@@ -30,46 +29,41 @@ class ListingDataSourceImpl implements ListingDataSource {
     required this.client,
     this.firestoreService,
     this.authService,
+    this.sharedPreferences,
   });
 
   @override
   Future<List<ListingModel>> getListings() async {
-    List<ListingModel> baseListings = [];
-
-    // 1. Fetch base listings from REST / local asset
-    try {
-      final response = await client
-          .get(Uri.parse(remoteUrl))
-          .timeout(const Duration(seconds: 4));
-
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonList =
-            jsonDecode(response.body) as List<dynamic>;
-        baseListings = jsonList
-            .map((item) => ListingModel.fromJson(item as Map<String, dynamic>))
-            .toList();
-      } else {
-        baseListings = await _loadFromLocalAsset();
-      }
-    } catch (_) {
-      // Automatic offline fallback to local bundle (ENF3)
-      baseListings = await _loadFromLocalAsset();
-    }
-
-    // 2. Fetch user-published listings from Cloud Firestore
     List<ListingModel> cloudListings = [];
+
+    // 1. Fetch exclusively from Cloud Firestore as primary source
     if (firestoreService != null) {
       try {
-        final snapshot = await firestoreService!.listingsCollection.get();
+        final snapshot = await firestoreService!.listingsCollection
+            .orderBy('createdAt', descending: true)
+            .get();
+
         cloudListings = snapshot.docs
             .map((doc) => ListingModel.fromFirestore(doc))
             .toList();
+
+        // 2. Cache the fetched Firestore listings in SharedPreferences
+        if (sharedPreferences != null && cloudListings.isNotEmpty) {
+          final jsonList = cloudListings
+              .map((listing) => jsonEncode(listing.toJson()))
+              .toList();
+          await sharedPreferences!
+              .setStringList(cachedCloudListingsKey, jsonList);
+        }
       } catch (_) {
-        // Offline resilience: ignore Firestore query failure
+        // Fallback to local cache when offline or if query fails (ENF3)
+        cloudListings = _loadFromCache();
       }
+    } else {
+      cloudListings = _loadFromCache();
     }
 
-    // 3. Merge: session listings + cloud listings + base listings without duplicates
+    // 3. Merge: session listings + cloud/cached listings without duplicates
     final combined = <ListingModel>[];
     final Set<String> seenIds = {};
 
@@ -85,24 +79,22 @@ class ListingDataSourceImpl implements ListingDataSource {
       }
     }
 
-    for (final listing in baseListings) {
-      if (seenIds.add(listing.id)) {
-        combined.add(listing);
-      }
-    }
-
     return combined;
   }
 
-  Future<List<ListingModel>> _loadFromLocalAsset() async {
+  List<ListingModel> _loadFromCache() {
+    if (sharedPreferences == null) return [];
     try {
-      final String rawString = await rootBundle.loadString(localAssetPath);
-      final List<dynamic> jsonList = jsonDecode(rawString) as List<dynamic>;
-      return jsonList
-          .map((item) => ListingModel.fromJson(item as Map<String, dynamic>))
+      final cachedList =
+          sharedPreferences!.getStringList(cachedCloudListingsKey);
+      if (cachedList == null || cachedList.isEmpty) return [];
+
+      return cachedList
+          .map((item) =>
+              ListingModel.fromJson(jsonDecode(item) as Map<String, dynamic>))
           .toList();
-    } catch (e) {
-      throw ServerException(e.toString());
+    } catch (_) {
+      return [];
     }
   }
 
@@ -128,6 +120,27 @@ class ListingDataSourceImpl implements ListingDataSource {
       throw const AuthException('AUTH_REQUIRED');
     }
 
+    String? phone = listing.ownerPhone;
+    String? avatarUrl = listing.ownerAvatarUrl;
+
+    // Attach ownerPhone and ownerAvatarUrl from users/{uid} profile if available
+    if (firestoreService != null) {
+      try {
+        final userDoc =
+            await firestoreService!.usersCollection.doc(user.uid).get();
+        if (userDoc.exists && userDoc.data() != null) {
+          final data = userDoc.data()!;
+          phone ??= data['phone'] as String?;
+          avatarUrl ??= data['profilURL'] as String?;
+        }
+      } catch (_) {
+        // Fallback to Auth properties
+      }
+    }
+
+    phone ??= user.phoneNumber;
+    avatarUrl ??= user.photoURL;
+
     final listingWithOwner = ListingModel(
       id: listing.id,
       title: listing.title,
@@ -148,6 +161,8 @@ class ListingDataSourceImpl implements ListingDataSource {
       availableFrom: listing.availableFrom,
       description: listing.description,
       ownerId: user.uid,
+      ownerPhone: phone,
+      ownerAvatarUrl: avatarUrl,
     );
 
     if (firestoreService != null) {

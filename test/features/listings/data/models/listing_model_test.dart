@@ -21,6 +21,8 @@ void main() {
     availableFrom: '2026-12-01',
     description: 'Magnifique appartement S+2 haut standing.',
     ownerId: 'owner_123',
+    ownerPhone: '+216 20 123 456',
+    ownerAvatarUrl: 'https://example.com/avatar.jpg',
   );
 
   final testJson = {
@@ -41,6 +43,8 @@ void main() {
     'availableFrom': '2026-12-01',
     'description': 'Magnifique appartement S+2 haut standing.',
     'ownerId': 'owner_123',
+    'ownerPhone': '+216 20 123 456',
+    'ownerAvatarUrl': 'https://example.com/avatar.jpg',
   };
 
   test('ListingModel should be a subclass of ListingEntity', () {
@@ -69,11 +73,13 @@ void main() {
       expect(result.availableFrom, '2026-12-01');
       expect(result.description, 'Magnifique appartement S+2 haut standing.');
       expect(result.ownerId, 'owner_123');
+      expect(result.ownerPhone, '+216 20 123 456');
+      expect(result.ownerAvatarUrl, 'https://example.com/avatar.jpg');
     });
   });
 
   group('toJson', () {
-    test('should return a JSON map containing the proper data including ownerId', () {
+    test('should return a JSON map containing the proper data including ownerId and metadata', () {
       final result = testListingModel.toJson();
 
       expect(result, testJson);
@@ -100,6 +106,8 @@ void main() {
         availableFrom: '2026-12-01',
         description: 'Magnifique appartement S+2 haut standing.',
         ownerId: 'owner_123',
+        ownerPhone: '+216 20 123 456',
+        ownerAvatarUrl: 'https://example.com/avatar.jpg',
       );
 
       final result = ListingModel.fromEntity(entity);
@@ -113,6 +121,8 @@ void main() {
       final map = testListingModel.toFirestore();
       expect(map['id'], 'sokna_001');
       expect(map['ownerId'], 'owner_123');
+      expect(map['ownerPhone'], '+216 20 123 456');
+      expect(map['ownerAvatarUrl'], 'https://example.com/avatar.jpg');
       expect(map.containsKey('createdAt'), isTrue);
     });
   });

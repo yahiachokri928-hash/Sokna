@@ -50,7 +50,9 @@ class ListingDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8.0),
                 Text(
-                  '${currentListing.ownerName} • ${currentListing.city}',
+                  currentListing.ownerPhone != null && currentListing.ownerPhone!.isNotEmpty
+                      ? '${currentListing.ownerName} • ${currentListing.ownerPhone}'
+                      : '${currentListing.ownerName} • ${currentListing.city}',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -525,11 +527,27 @@ class ListingDetailScreen extends StatelessWidget {
                           CircleAvatar(
                             radius: 26.0,
                             backgroundColor: theme.colorScheme.primaryContainer,
-                            child: Icon(
-                              Icons.person_rounded,
-                              size: 28.0,
-                              color: theme.colorScheme.primary,
-                            ),
+                            backgroundImage: (currentListing.ownerAvatarUrl != null &&
+                                    currentListing.ownerAvatarUrl!.isNotEmpty)
+                                ? NetworkImage(currentListing.ownerAvatarUrl!)
+                                : null,
+                            child: (currentListing.ownerAvatarUrl == null ||
+                                    currentListing.ownerAvatarUrl!.isEmpty)
+                                ? (currentListing.ownerName.isNotEmpty
+                                    ? Text(
+                                        currentListing.ownerName.substring(0, 1).toUpperCase(),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20.0,
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                      )
+                                    : Icon(
+                                        Icons.person_rounded,
+                                        size: 28.0,
+                                        color: theme.colorScheme.primary,
+                                      ))
+                                : null,
                           ),
                           const SizedBox(width: 14.0),
                           Expanded(
@@ -538,10 +556,12 @@ class ListingDetailScreen extends StatelessWidget {
                               children: [
                                 Row(
                                   children: [
-                                    Text(
-                                      currentListing.ownerName,
-                                      style: theme.textTheme.titleSmall?.copyWith(
-                                        fontWeight: FontWeight.bold,
+                                    Expanded(
+                                      child: Text(
+                                        currentListing.ownerName,
+                                        style: theme.textTheme.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 4.0),
@@ -559,6 +579,27 @@ class ListingDetailScreen extends StatelessWidget {
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
                                 ),
+                                if (currentListing.ownerPhone != null &&
+                                    currentListing.ownerPhone!.isNotEmpty) ...[
+                                  const SizedBox(height: 4.0),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.phone_rounded,
+                                        size: 14.0,
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                      const SizedBox(width: 4.0),
+                                      Text(
+                                        currentListing.ownerPhone!,
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ],
                             ),
                           ),

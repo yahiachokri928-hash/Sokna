@@ -66,6 +66,7 @@ Future<void> initServiceLocator() async {
       client: sl<http.Client>(),
       firestoreService: sl<FirestoreService>(),
       authService: sl<AuthService>(),
+      sharedPreferences: sl<SharedPreferences>(),
     ),
   );
 
