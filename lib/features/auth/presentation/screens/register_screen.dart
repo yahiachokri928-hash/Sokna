@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
+import '../../../../core/utils/snack_bar_message.dart';
+import '../blocs/register/register_bloc.dart';
+import '../widgets/register_form.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -7,31 +14,73 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(AUTH_REGISTER_TITLE),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.person_add_alt_1_rounded,
-                size: 64,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                AUTH_REGISTER_TITLE,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+      body: BlocConsumer<RegisterBloc, RegisterState>(
+        listener: (context, state) {
+          if (state is RegisterUserFailState) {
+            SnackBarMessage.showErrorSnackBar(
+              context: context,
+              message: state.message,
+            );
+          } else if (state is RegisterUserSuccessState) {
+            SnackBarMessage.showSuccessSnackBar(
+              context: context,
+              message: AUTH_REGISTER_SUCCESS,
+            );
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(AppRoutes.login);
+            }
+          }
+        },
+        builder: (context, state) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 16.0),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.person_add_rounded,
+                      size: 48.0,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
+                const SizedBox(height: 24.0),
+                Text(
+                  AUTH_REGISTER_TITLE,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  AUTH_REGISTER_SUBTITLE,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 32.0),
+                const RegisterForm(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

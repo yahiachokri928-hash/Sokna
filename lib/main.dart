@@ -6,6 +6,8 @@ import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
 import 'core/strings/messages.dart';
 import 'core/themes/theme_manager.dart';
+import 'features/auth/presentation/blocs/auth/auth_bloc.dart';
+import 'features/auth/presentation/blocs/register/register_bloc.dart';
 import 'features/favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import 'features/listings/presentation/blocs/listings/listings_bloc.dart';
 import 'features/listings/presentation/blocs/theme/switchtheme_bloc.dart';
@@ -42,6 +44,12 @@ class SoknaApp extends StatelessWidget {
         ),
         BlocProvider<SwitchthemeBloc>(
           create: (_) => sl<SwitchthemeBloc>(),
+        ),
+        BlocProvider<AuthBloc>(
+          create: (_) => sl<AuthBloc>(),
+        ),
+        BlocProvider<RegisterBloc>(
+          create: (_) => sl<RegisterBloc>(),
         ),
       ],
       child: BlocBuilder<SwitchthemeBloc, SwitchthemeState>(

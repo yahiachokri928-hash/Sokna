@@ -3,6 +3,15 @@ import 'package:http/http.dart' as http;
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/auth/data/datasources/user_data_source.dart';
+import '../../features/auth/data/repositories/user_repository_impl.dart';
+import '../../features/auth/domain/repositories/user_repository.dart';
+import '../../features/auth/domain/usecases/register_user.dart';
+import '../../features/auth/domain/usecases/sign_in_user.dart';
+import '../../features/auth/domain/usecases/sign_out_user.dart';
+import '../../features/auth/domain/usecases/update_user.dart';
+import '../../features/auth/presentation/blocs/auth/auth_bloc.dart';
+import '../../features/auth/presentation/blocs/register/register_bloc.dart';
 import '../../features/favorites/data/datasources/favorites_local_data_source.dart';
 import '../../features/favorites/data/repositories/favorites_repository_impl.dart';
 import '../../features/favorites/domain/repositories/favorites_repository.dart';
@@ -38,8 +47,8 @@ Future<void> initServiceLocator() async {
     () => NetworkInfoImpl(sl<InternetConnectionChecker>()),
   );
 
-  sl.registerLazySingleton<FirebaseAuthService>(
-    () => FirebaseAuthService(),
+  sl.registerLazySingleton<AuthService>(
+    () => AuthService(),
   );
 
   //! Feature: Listings
@@ -93,6 +102,41 @@ Future<void> initServiceLocator() async {
     () => SavedListingsBloc(
       getSavedListingIdsUseCase: sl<GetSavedListingIdsUseCase>(),
       toggleSavedListingUseCase: sl<ToggleSavedListingUseCase>(),
+    ),
+  );
+
+  //! Feature: Auth
+  // Data Sources
+  sl.registerLazySingleton<UserDataSource>(
+    () => UserDataSourceImpl(authService: sl<AuthService>()),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<UserRepository>(
+    () => UserRepositoryImpl(
+      remoteDataSource: sl<UserDataSource>(),
+      networkInfo: sl<NetworkInfo>(),
+    ),
+  );
+
+  // Use Cases
+  sl.registerLazySingleton(() => RegisterUserUseCase(sl<UserRepository>()));
+  sl.registerLazySingleton(() => SignInUserUseCase(sl<UserRepository>()));
+  sl.registerLazySingleton(() => SignOutUserUseCase(sl<UserRepository>()));
+  sl.registerLazySingleton(() => UpdateUserUseCase(sl<UserRepository>()));
+
+  // BLoCs
+  sl.registerFactory(
+    () => AuthBloc(
+      signInUserUseCase: sl<SignInUserUseCase>(),
+      signOutUserUseCase: sl<SignOutUserUseCase>(),
+      authService: sl<AuthService>(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => RegisterBloc(
+      registerUserUseCase: sl<RegisterUserUseCase>(),
     ),
   );
 }
