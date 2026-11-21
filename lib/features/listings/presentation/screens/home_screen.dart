@@ -6,7 +6,6 @@ import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
 import '../../../../core/widgets/loading_widget.dart';
-import '../../../auth/presentation/blocs/auth/auth_bloc.dart';
 import '../../../favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import '../blocs/listings/listings_bloc.dart';
 import '../widgets/category_filter_bar.dart';
@@ -270,16 +269,6 @@ class HomeScreen extends StatelessWidget {
                                 );
                               },
                               onFavoriteToggle: () {
-                                final authState = context.read<AuthBloc>().state;
-                                if (authState is! AuthenticatedState) {
-                                  SnackBarMessage.showErrorSnackBar(
-                                    context: context,
-                                    message: LOGIN_REQUIRED_FAVORITES_MESSAGE,
-                                  );
-                                  context.push(AppRoutes.login);
-                                  return;
-                                }
-
                                 context
                                     .read<SavedListingsBloc>()
                                     .add(ToggleSavedListingEvent(listing.id));

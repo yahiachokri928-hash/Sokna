@@ -147,6 +147,20 @@ const String ACTION_RETRY = "Réessayer";
 const String ACTION_CANCEL = "Annuler";
 const String ACTION_CONFIRM = "Confirmer";
 const String ACTION_CLOSE = "Fermer";
+const String ACTION_LOGIN = "Se connecter";
+
+// Guest gates & prompts (Phase G2)
+const String AUTH_CREATE_ACCOUNT_BUTTON = "Créer un compte";
+const String FAVORITES_GUEST_SNACKBAR_MESSAGE = "Connectez-vous pour enregistrer vos favoris";
+const String GUEST_SAVED_TITLE = "Retrouvez vos favoris partout";
+const String GUEST_SAVED_SUBTITLE =
+    "Connectez-vous à votre compte Sokna pour sauvegarder vos logements préférés et les synchroniser sur tous vos appareils.";
+const String GUEST_POST_TITLE = "Publiez vos annonces immobilières";
+const String GUEST_POST_SUBTITLE =
+    "Connectez-vous ou créez un compte pour déposer une annonce de location et trouver des locataires vérifiés.";
+const String GUEST_REVIEW_TITLE = "Partagez votre avis sur ce logement";
+const String GUEST_REVIEW_SUBTITLE =
+    "Connectez-vous à votre compte pour laisser une évaluation et aider la communauté Sokna.";
 
 // Reviews section (Phase C2)
 const String DETAIL_REVIEWS_TITLE = "Avis des locataires";

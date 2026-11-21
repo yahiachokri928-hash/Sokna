@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
-import '../../../../core/widgets/loading_widget.dart';
+import '../../../../core/widgets/guest_auth_prompt.dart';
 import '../../../auth/presentation/blocs/auth/auth_bloc.dart';
 import '../../domain/entities/listing_entity.dart';
 import '../blocs/listings/listings_bloc.dart';
@@ -16,27 +15,25 @@ class PostListingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is! AuthenticatedState) {
-          SnackBarMessage.showErrorSnackBar(
-            context: context,
-            message: POST_LOGIN_REQUIRED_MESSAGE,
-          );
-          context.pushReplacement(AppRoutes.login);
-        }
-      },
+    return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is! AuthenticatedState) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            SnackBarMessage.showErrorSnackBar(
-              context: context,
-              message: POST_LOGIN_REQUIRED_MESSAGE,
-            );
-            context.pushReplacement(AppRoutes.login);
-          });
-          return const Scaffold(
-            body: Center(child: LoadingWidget()),
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text(POST_APP_BAR_TITLE),
+            ),
+            body: const SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(24.0),
+                  child: GuestAuthPrompt(
+                    icon: Icons.add_home_work_rounded,
+                    title: GUEST_POST_TITLE,
+                    subtitle: GUEST_POST_SUBTITLE,
+                  ),
+                ),
+              ),
+            ),
           );
         }
 

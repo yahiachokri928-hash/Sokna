@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
+import '../../../../core/utils/snack_bar_message.dart';
+import '../../../auth/presentation/blocs/auth/auth_bloc.dart';
 import '../../domain/entities/listing_entity.dart';
 import 'amenity_badge.dart';
 
@@ -17,6 +22,26 @@ class ListingCard extends StatelessWidget {
     this.isFavorite = false,
     this.onFavoriteToggle,
   });
+
+  void _onFavoritePressed(BuildContext context) {
+    AuthBloc? authBloc;
+    try {
+      authBloc = context.read<AuthBloc>();
+    } catch (_) {
+      authBloc = null;
+    }
+
+    if (authBloc != null && authBloc.state is! AuthenticatedState) {
+      SnackBarMessage.showAuthRequiredSnackBar(
+        context: context,
+        message: FAVORITES_GUEST_SNACKBAR_MESSAGE,
+        onAction: () => context.push(AppRoutes.login),
+      );
+      return;
+    }
+
+    onFavoriteToggle?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +159,7 @@ class ListingCard extends StatelessWidget {
                           size: 20.0,
                         ),
                       ),
-                      onPressed: onFavoriteToggle,
+                      onPressed: () => _onFavoritePressed(context),
                     ),
                   ),
                 ),

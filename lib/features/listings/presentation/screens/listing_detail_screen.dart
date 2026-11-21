@@ -6,6 +6,7 @@ import '../../../../core/di/service_locator.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
+import '../../../../core/widgets/guest_auth_prompt.dart';
 import '../../../auth/presentation/blocs/auth/auth_bloc.dart';
 import '../../../favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import '../../domain/entities/listing_entity.dart';
@@ -330,11 +331,11 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                   onPressed: () {
                                     final authState = context.read<AuthBloc>().state;
                                     if (authState is! AuthenticatedState) {
-                                      SnackBarMessage.showErrorSnackBar(
+                                      SnackBarMessage.showAuthRequiredSnackBar(
                                         context: context,
-                                        message: LOGIN_REQUIRED_FAVORITES_MESSAGE,
+                                        message: FAVORITES_GUEST_SNACKBAR_MESSAGE,
+                                        onAction: () => context.push(AppRoutes.login),
                                       );
-                                      context.push(AppRoutes.login);
                                       return;
                                     }
 
@@ -856,9 +857,17 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
 
                             const SizedBox(height: 24.0),
 
-                            // Add Review Form
-                            Card(
-                              elevation: 0,
+                            // Add Review Form or Guest Auth Prompt
+                            if (context.watch<AuthBloc>().state is! AuthenticatedState)
+                              const GuestAuthPrompt(
+                                icon: Icons.rate_review_outlined,
+                                title: GUEST_REVIEW_TITLE,
+                                subtitle: GUEST_REVIEW_SUBTITLE,
+                                isCompact: true,
+                              )
+                            else
+                              Card(
+                                elevation: 0,
                               color: theme.colorScheme.surface,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16.0),

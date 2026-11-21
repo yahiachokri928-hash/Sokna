@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
+import '../../../../core/widgets/guest_auth_prompt.dart';
 import '../../../../core/widgets/loading_widget.dart';
+import '../../../auth/presentation/blocs/auth/auth_bloc.dart';
 import '../../../listings/presentation/blocs/listings/listings_bloc.dart';
 import '../../../listings/presentation/widgets/custom_empty_state.dart';
 import '../../../listings/presentation/widgets/listing_card.dart';
@@ -17,6 +19,27 @@ class SavedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final authState = context.watch<AuthBloc>().state;
+
+    if (authState is! AuthenticatedState) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text(SAVED_APP_BAR_TITLE),
+        ),
+        body: const SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(24.0),
+              child: GuestAuthPrompt(
+                icon: Icons.favorite_border_rounded,
+                title: GUEST_SAVED_TITLE,
+                subtitle: GUEST_SAVED_SUBTITLE,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
