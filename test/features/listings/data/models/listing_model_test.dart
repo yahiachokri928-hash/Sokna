@@ -20,6 +20,7 @@ void main() {
     ownerName: 'Karim Ben Amor',
     availableFrom: '2026-12-01',
     description: 'Magnifique appartement S+2 haut standing.',
+    ownerId: 'owner_123',
   );
 
   final testJson = {
@@ -39,6 +40,7 @@ void main() {
     'ownerName': 'Karim Ben Amor',
     'availableFrom': '2026-12-01',
     'description': 'Magnifique appartement S+2 haut standing.',
+    'ownerId': 'owner_123',
   };
 
   test('ListingModel should be a subclass of ListingEntity', () {
@@ -46,7 +48,7 @@ void main() {
   });
 
   group('fromJson', () {
-    test('should return a valid ListingModel when JSON is valid with all 16 fields', () {
+    test('should return a valid ListingModel when JSON is valid with all fields', () {
       final result = ListingModel.fromJson(testJson);
 
       expect(result, equals(testListingModel));
@@ -66,11 +68,12 @@ void main() {
       expect(result.ownerName, 'Karim Ben Amor');
       expect(result.availableFrom, '2026-12-01');
       expect(result.description, 'Magnifique appartement S+2 haut standing.');
+      expect(result.ownerId, 'owner_123');
     });
   });
 
   group('toJson', () {
-    test('should return a JSON map containing the proper data', () {
+    test('should return a JSON map containing the proper data including ownerId', () {
       final result = testListingModel.toJson();
 
       expect(result, testJson);
@@ -96,11 +99,21 @@ void main() {
         ownerName: 'Karim Ben Amor',
         availableFrom: '2026-12-01',
         description: 'Magnifique appartement S+2 haut standing.',
+        ownerId: 'owner_123',
       );
 
       final result = ListingModel.fromEntity(entity);
 
       expect(result, equals(testListingModel));
+    });
+  });
+
+  group('toFirestore', () {
+    test('should contain valid firestore map representation', () {
+      final map = testListingModel.toFirestore();
+      expect(map['id'], 'sokna_001');
+      expect(map['ownerId'], 'owner_123');
+      expect(map.containsKey('createdAt'), isTrue);
     });
   });
 }
