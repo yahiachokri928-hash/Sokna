@@ -3,6 +3,12 @@ import 'package:http/http.dart' as http;
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/favorites/data/datasources/favorites_local_data_source.dart';
+import '../../features/favorites/data/repositories/favorites_repository_impl.dart';
+import '../../features/favorites/domain/repositories/favorites_repository.dart';
+import '../../features/favorites/domain/usecases/get_saved_listing_ids.dart';
+import '../../features/favorites/domain/usecases/toggle_saved_listing.dart';
+import '../../features/favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import '../../features/listings/data/datasources/listing_data_source.dart';
 import '../../features/listings/data/repositories/listing_repository_impl.dart';
 import '../../features/listings/domain/repositories/listing_repository.dart';
@@ -65,5 +71,28 @@ Future<void> initServiceLocator() async {
 
   sl.registerFactory(
     () => SwitchthemeBloc(),
+  );
+
+  //! Feature: Favorites
+  // Data Sources
+  sl.registerLazySingleton<FavoritesLocalDataSource>(
+    () => FavoritesLocalDataSourceImpl(sharedPreferences: sl<SharedPreferences>()),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<FavoritesRepository>(
+    () => FavoritesRepositoryImpl(localDataSource: sl<FavoritesLocalDataSource>()),
+  );
+
+  // Use Cases
+  sl.registerLazySingleton(() => GetSavedListingIdsUseCase(sl<FavoritesRepository>()));
+  sl.registerLazySingleton(() => ToggleSavedListingUseCase(sl<FavoritesRepository>()));
+
+  // BLoC
+  sl.registerFactory(
+    () => SavedListingsBloc(
+      getSavedListingIdsUseCase: sl<GetSavedListingIdsUseCase>(),
+      toggleSavedListingUseCase: sl<ToggleSavedListingUseCase>(),
+    ),
   );
 }

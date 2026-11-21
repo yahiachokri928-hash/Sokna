@@ -6,6 +6,7 @@ import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
 import 'core/strings/messages.dart';
 import 'core/themes/theme_manager.dart';
+import 'features/favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import 'features/listings/presentation/blocs/listings/listings_bloc.dart';
 import 'features/listings/presentation/blocs/theme/switchtheme_bloc.dart';
 import 'firebase_options.dart';
@@ -35,6 +36,9 @@ class SoknaApp extends StatelessWidget {
       providers: [
         BlocProvider<ListingsBloc>(
           create: (_) => sl<ListingsBloc>()..add(const GetListingsEvent()),
+        ),
+        BlocProvider<SavedListingsBloc>(
+          create: (_) => sl<SavedListingsBloc>()..add(const LoadSavedListingsEvent()),
         ),
         BlocProvider<SwitchthemeBloc>(
           create: (_) => sl<SwitchthemeBloc>(),
