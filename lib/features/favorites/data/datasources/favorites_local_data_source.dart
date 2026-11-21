@@ -5,6 +5,7 @@ import '../../../../core/exceptions/exceptions.dart';
 abstract class FavoritesLocalDataSource {
   Future<List<String>> getSavedListingIds();
   Future<List<String>> toggleSavedListing(String listingId);
+  Future<void> saveSavedListingIds(List<String> ids);
 }
 
 class FavoritesLocalDataSourceImpl implements FavoritesLocalDataSource {
@@ -39,6 +40,15 @@ class FavoritesLocalDataSourceImpl implements FavoritesLocalDataSource {
       final updatedList = updatedSet.toList();
       await sharedPreferences.setStringList(savedListingsKey, updatedList);
       return updatedList;
+    } catch (e) {
+      throw CacheException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> saveSavedListingIds(List<String> ids) async {
+    try {
+      await sharedPreferences.setStringList(savedListingsKey, ids.toSet().toList());
     } catch (e) {
       throw CacheException(e.toString());
     }

@@ -14,6 +14,7 @@ import '../../features/auth/domain/usecases/update_user.dart';
 import '../../features/auth/presentation/blocs/auth/auth_bloc.dart';
 import '../../features/auth/presentation/blocs/register/register_bloc.dart';
 import '../../features/favorites/data/datasources/favorites_local_data_source.dart';
+import '../../features/favorites/data/datasources/favorites_remote_data_source.dart';
 import '../../features/favorites/data/repositories/favorites_repository_impl.dart';
 import '../../features/favorites/domain/repositories/favorites_repository.dart';
 import '../../features/favorites/domain/usecases/get_saved_listing_ids.dart';
@@ -93,10 +94,18 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton<FavoritesLocalDataSource>(
     () => FavoritesLocalDataSourceImpl(sharedPreferences: sl<SharedPreferences>()),
   );
+  sl.registerLazySingleton<FavoritesRemoteDataSource>(
+    () => FavoritesRemoteDataSourceImpl(firestoreService: sl<FirestoreService>()),
+  );
 
   // Repositories
   sl.registerLazySingleton<FavoritesRepository>(
-    () => FavoritesRepositoryImpl(localDataSource: sl<FavoritesLocalDataSource>()),
+    () => FavoritesRepositoryImpl(
+      localDataSource: sl<FavoritesLocalDataSource>(),
+      remoteDataSource: sl<FavoritesRemoteDataSource>(),
+      authService: sl<AuthService>(),
+      networkInfo: sl<NetworkInfo>(),
+    ),
   );
 
   // Use Cases

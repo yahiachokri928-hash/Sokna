@@ -52,17 +52,24 @@ class SoknaApp extends StatelessWidget {
           create: (_) => sl<RegisterBloc>(),
         ),
       ],
-      child: BlocBuilder<SwitchthemeBloc, SwitchthemeState>(
-        builder: (context, state) {
-          return MaterialApp.router(
-            title: APP_TITLE,
-            debugShowCheckedModeBanner: false,
-            theme: ThemeManager.lightTheme,
-            darkTheme: ThemeManager.darkTheme,
-            themeMode: state.themeMode,
-            routerConfig: AppRouter.router,
-          );
+      child: BlocListener<AuthBloc, AuthState>(
+        listenWhen: (previous, current) =>
+            current is AuthenticatedState || current is UnAuthenticatedState,
+        listener: (context, state) {
+          context.read<SavedListingsBloc>().add(const LoadSavedListingsEvent());
         },
+        child: BlocBuilder<SwitchthemeBloc, SwitchthemeState>(
+          builder: (context, state) {
+            return MaterialApp.router(
+              title: APP_TITLE,
+              debugShowCheckedModeBanner: false,
+              theme: ThemeManager.lightTheme,
+              darkTheme: ThemeManager.darkTheme,
+              themeMode: state.themeMode,
+              routerConfig: AppRouter.router,
+            );
+          },
+        ),
       ),
     );
   }

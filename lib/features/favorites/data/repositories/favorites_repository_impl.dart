@@ -2,20 +2,49 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
 import '../../../../core/failures/failures.dart';
+import '../../../../core/firebase/auth_service.dart';
+import '../../../../core/network/network_info.dart';
 import '../../../../core/strings/failures.dart';
 import '../../domain/repositories/favorites_repository.dart';
 import '../datasources/favorites_local_data_source.dart';
+import '../datasources/favorites_remote_data_source.dart';
 
 class FavoritesRepositoryImpl implements FavoritesRepository {
   final FavoritesLocalDataSource localDataSource;
+  final FavoritesRemoteDataSource? remoteDataSource;
+  final AuthService? authService;
+  final NetworkInfo? networkInfo;
 
-  FavoritesRepositoryImpl({required this.localDataSource});
+  FavoritesRepositoryImpl({
+    required this.localDataSource,
+    this.remoteDataSource,
+    this.authService,
+    this.networkInfo,
+  });
 
   @override
   Future<Either<Failure, List<String>>> getSavedListingIds() async {
     try {
-      final ids = await localDataSource.getSavedListingIds();
-      return Right(ids);
+      final user = authService?.currentUser;
+      final isConnected =
+          networkInfo != null ? await networkInfo!.isConnected : false;
+
+      if (user != null && isConnected && remoteDataSource != null) {
+        try {
+          final cloudIds = await remoteDataSource!.getSavedListingIds(user.uid);
+          // Mirror to local cache so offline cache stays up to date (ENF3)
+          await localDataSource.saveSavedListingIds(cloudIds);
+          return Right(cloudIds);
+        } catch (_) {
+          // Fallback to local cache if cloud fetch throws
+          final localIds = await localDataSource.getSavedListingIds();
+          return Right(localIds);
+        }
+      }
+
+      // Guest mode or offline fallback (EF7)
+      final localIds = await localDataSource.getSavedListingIds();
+      return Right(localIds);
     } on CacheException {
       return const Left(CacheFailure(CACHE_FAILURE_MESSAGE));
     } catch (_) {
@@ -24,10 +53,31 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   }
 
   @override
-  Future<Either<Failure, List<String>>> toggleSavedListing(String listingId) async {
+  Future<Either<Failure, List<String>>> toggleSavedListing(
+    String listingId,
+  ) async {
     try {
-      final updatedIds = await localDataSource.toggleSavedListing(listingId);
-      return Right(updatedIds);
+      final user = authService?.currentUser;
+      final isConnected =
+          networkInfo != null ? await networkInfo!.isConnected : false;
+
+      if (user != null && isConnected && remoteDataSource != null) {
+        try {
+          final updatedCloudIds =
+              await remoteDataSource!.toggleSavedListing(user.uid, listingId);
+          // Mirror to local cache (ENF3)
+          await localDataSource.saveSavedListingIds(updatedCloudIds);
+          return Right(updatedCloudIds);
+        } catch (_) {
+          // Fallback to local toggle if cloud update throws
+          final updatedLocal = await localDataSource.toggleSavedListing(listingId);
+          return Right(updatedLocal);
+        }
+      }
+
+      // Guest mode or offline toggle (EF7)
+      final updatedLocal = await localDataSource.toggleSavedListing(listingId);
+      return Right(updatedLocal);
     } on CacheException {
       return const Left(CacheFailure(CACHE_FAILURE_MESSAGE));
     } catch (_) {

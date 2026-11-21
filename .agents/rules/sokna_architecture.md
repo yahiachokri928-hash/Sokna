@@ -107,7 +107,9 @@ lib/
     │           └── toolbar_action_theme_widget.dart
     └── favorites/
         ├── data/
-        │   ├── datasources/favorites_local_data_source.dart
+        │   ├── datasources/
+        │   │   ├── favorites_local_data_source.dart
+        │   │   └── favorites_remote_data_source.dart
         │   └── repositories/favorites_repository_impl.dart
         ├── domain/
         │   ├── repositories/favorites_repository.dart
