@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/exceptions/exceptions.dart';
+import '../../../../core/failures/auth_failures.dart';
 import '../../../../core/failures/failures.dart';
 import '../../../../core/firebase/auth_service.dart';
 import '../../../../core/network/network_info.dart';
@@ -26,10 +27,15 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   Future<Either<Failure, List<String>>> getSavedListingIds() async {
     try {
       final user = authService?.currentUser;
+      // Phase G1: When unauthenticated (guest), always return empty list
+      if (user == null) {
+        return const Right([]);
+      }
+
       final isConnected =
           networkInfo != null ? await networkInfo!.isConnected : false;
 
-      if (user != null && isConnected && remoteDataSource != null) {
+      if (isConnected && remoteDataSource != null) {
         try {
           final cloudIds = await remoteDataSource!.getSavedListingIds(user.uid);
           // Mirror to local cache so offline cache stays up to date (ENF3)
@@ -42,7 +48,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         }
       }
 
-      // Guest mode or offline fallback (EF7)
+      // Authenticated user offline fallback (ENF3)
       final localIds = await localDataSource.getSavedListingIds();
       return Right(localIds);
     } on CacheException {
@@ -58,10 +64,15 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   ) async {
     try {
       final user = authService?.currentUser;
+      // Phase G1: When unauthenticated (guest), enforce cloud-only user data
+      if (user == null) {
+        return const Left(AuthFailure(LOGIN_REQUIRED_FAVORITES_MESSAGE));
+      }
+
       final isConnected =
           networkInfo != null ? await networkInfo!.isConnected : false;
 
-      if (user != null && isConnected && remoteDataSource != null) {
+      if (isConnected && remoteDataSource != null) {
         try {
           final updatedCloudIds =
               await remoteDataSource!.toggleSavedListing(user.uid, listingId);
@@ -75,7 +86,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         }
       }
 
-      // Guest mode or offline toggle (EF7)
+      // Authenticated user offline toggle (ENF3)
       final updatedLocal = await localDataSource.toggleSavedListing(listingId);
       return Right(updatedLocal);
     } on CacheException {

@@ -328,6 +328,16 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                         : theme.colorScheme.onSurface,
                                   ),
                                   onPressed: () {
+                                    final authState = context.read<AuthBloc>().state;
+                                    if (authState is! AuthenticatedState) {
+                                      SnackBarMessage.showErrorSnackBar(
+                                        context: context,
+                                        message: LOGIN_REQUIRED_FAVORITES_MESSAGE,
+                                      );
+                                      context.push(AppRoutes.login);
+                                      return;
+                                    }
+
                                     context
                                         .read<SavedListingsBloc>()
                                         .add(ToggleSavedListingEvent(currentListing.id));

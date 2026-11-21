@@ -106,6 +106,8 @@ const String SAVED_EMPTY_TITLE = "Aucun favori enregistré";
 const String SAVED_EMPTY_SUBTITLE = "Cliquez sur l'icône cœur pour sauvegarder vos logements préférés.";
 const String SNACKBAR_FAVORITE_ADDED = "Logement ajouté à vos favoris";
 const String SNACKBAR_FAVORITE_REMOVED = "Logement retiré de vos favoris";
+const String LOGIN_REQUIRED_FAVORITES_MESSAGE =
+    "Veuillez vous connecter pour enregistrer des favoris.";
 
 // Auth screens (Login, Register, Profile)
 const String AUTH_LOGIN_TITLE = "Connexion";

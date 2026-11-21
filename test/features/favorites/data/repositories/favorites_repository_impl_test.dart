@@ -1,8 +1,28 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sokna/core/firebase/auth_service.dart';
 import 'package:sokna/core/network/network_info.dart';
+import 'package:sokna/core/strings/failures.dart';
 import 'package:sokna/features/favorites/data/datasources/favorites_local_data_source.dart';
 import 'package:sokna/features/favorites/data/datasources/favorites_remote_data_source.dart';
 import 'package:sokna/features/favorites/data/repositories/favorites_repository_impl.dart';
+
+class FakeUser implements User {
+  @override
+  final String uid;
+  FakeUser(this.uid);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class MockAuthService extends AuthService {
+  final User? mockUser;
+  MockAuthService([this.mockUser]);
+
+  @override
+  User? get currentUser => mockUser;
+}
 
 class MockLocalDataSource implements FavoritesLocalDataSource {
   List<String> storage = ['sokna_001'];
@@ -63,7 +83,7 @@ void main() {
     mockNetwork = MockNetworkInfo();
   });
 
-  test('when unauthenticated, getSavedListingIds falls back to localDataSource (EF7)', () async {
+  test('when unauthenticated, getSavedListingIds returns empty list (Phase G1 cloud-only)', () async {
     repository = FavoritesRepositoryImpl(
       localDataSource: mockLocal,
       remoteDataSource: mockRemote,
@@ -74,11 +94,10 @@ void main() {
     final result = await repository.getSavedListingIds();
 
     expect(result.isRight(), isTrue);
-    expect(result.getOrElse(() => []), ['sokna_001']);
+    expect(result.getOrElse(() => ['unexpected']), isEmpty);
   });
 
-  test('when network is offline, toggleSavedListing falls back to localDataSource (EF7)', () async {
-    mockNetwork.connected = false;
+  test('when unauthenticated, toggleSavedListing returns Left(AuthFailure) (Phase G1 cloud-only)', () async {
     repository = FavoritesRepositoryImpl(
       localDataSource: mockLocal,
       remoteDataSource: mockRemote,
@@ -88,8 +107,45 @@ void main() {
 
     final result = await repository.toggleSavedListing('sokna_005');
 
+    expect(result.isLeft(), isTrue);
+    result.fold(
+      (failure) => expect(failure.message, LOGIN_REQUIRED_FAVORITES_MESSAGE),
+      (_) => fail('Should return AuthFailure'),
+    );
+  });
+
+  test('when authenticated and online, toggleSavedListing updates cloud and mirrors to local', () async {
+    final fakeUser = FakeUser('user_123');
+    final mockAuth = MockAuthService(fakeUser);
+    repository = FavoritesRepositoryImpl(
+      localDataSource: mockLocal,
+      remoteDataSource: mockRemote,
+      networkInfo: mockNetwork,
+      authService: mockAuth,
+    );
+
+    final result = await repository.toggleSavedListing('sokna_005');
+
     expect(result.isRight(), isTrue);
-    expect(result.getOrElse(() => []), ['sokna_001', 'sokna_005']);
+    expect(result.getOrElse(() => []), contains('sokna_005'));
+    expect(mockLocal.storage, contains('sokna_005'));
+  });
+
+  test('when authenticated and offline, toggleSavedListing falls back to localDataSource (EF7, ENF3)', () async {
+    mockNetwork.connected = false;
+    final fakeUser = FakeUser('user_123');
+    final mockAuth = MockAuthService(fakeUser);
+    repository = FavoritesRepositoryImpl(
+      localDataSource: mockLocal,
+      remoteDataSource: mockRemote,
+      networkInfo: mockNetwork,
+      authService: mockAuth,
+    );
+
+    final result = await repository.toggleSavedListing('sokna_005');
+
+    expect(result.isRight(), isTrue);
+    expect(result.getOrElse(() => []), contains('sokna_005'));
     expect(mockLocal.storage, contains('sokna_005'));
   });
 }

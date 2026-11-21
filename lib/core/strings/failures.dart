@@ -44,6 +44,9 @@ const String LISTING_DELETE_FAILURE_MESSAGE =
 const String AUTH_REQUIRED_FAILURE_MESSAGE =
     "Authentification requise pour effectuer cette action.";
 
+const String LOGIN_REQUIRED_FAVORITES_MESSAGE =
+    "Veuillez vous connecter pour enregistrer des favoris.";
+
 const String REVIEW_SUBMISSION_FAILURE_MESSAGE =
     "Impossible de publier votre avis. Veuillez réessayer.";
 

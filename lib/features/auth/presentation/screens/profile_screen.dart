@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/di/service_locator.dart';
 import '../../../../core/firebase/firestore_cloud_seeder.dart';
 import '../../../../core/router/routes.dart';
-import '../../../../core/strings/failures.dart';
 import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
 import '../../../favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
@@ -23,7 +21,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _isSeeding = false;
   bool _isDemoExpanded = true;
   String? _loggingInEmail;
 
@@ -51,49 +48,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 context: context,
                 message: LISTING_DELETE_SUCCESS,
               );
-            },
-            child: const Text(ACTION_CONFIRM),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmResetCloudDatabase() {
-    showDialog(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        title: const Text(PROFILE_DEMO_SEED_CONFIRM_TITLE),
-        content: const Text(PROFILE_DEMO_SEED_CONFIRM_MESSAGE),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogCtx),
-            child: const Text(ACTION_CANCEL),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(dialogCtx);
-              setState(() => _isSeeding = true);
-              try {
-                await sl<FirestoreCloudSeeder>().seedCloudDatabase(forceReseed: true);
-                if (!mounted) return;
-                context.read<ListingsBloc>().add(const GetListingsEvent(refresh: true));
-                context.read<SavedListingsBloc>().add(const LoadSavedListingsEvent());
-                SnackBarMessage.showSuccessSnackBar(
-                  context: context,
-                  message: PROFILE_DEMO_SEED_SUCCESS,
-                );
-              } catch (_) {
-                if (!mounted) return;
-                SnackBarMessage.showErrorSnackBar(
-                  context: context,
-                  message: SEED_FAILURE_MESSAGE,
-                );
-              } finally {
-                if (mounted) {
-                  setState(() => _isSeeding = false);
-                }
-              }
             },
             child: const Text(ACTION_CONFIRM),
           ),
@@ -831,48 +785,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     );
                   },
-                ),
-              ),
-
-              const SizedBox(height: 12.0),
-
-              // Cloud Database Reset / Seeder Button Card
-              Card(
-                elevation: 1,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                    vertical: 6.0,
-                  ),
-                  leading: CircleAvatar(
-                    backgroundColor: theme.colorScheme.primaryContainer,
-                    child: Icon(
-                      Icons.cloud_sync_rounded,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                  title: const Text(
-                    PROFILE_DEMO_SEED_BUTTON,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    _isSeeding ? PROFILE_DEMO_SEED_PROGRESS : '10 comptes, 16 annonces & 36 avis',
-                  ),
-                  trailing: _isSeeding
-                      ? const SizedBox(
-                          width: 24.0,
-                          height: 24.0,
-                          child: CircularProgressIndicator(strokeWidth: 2.0),
-                        )
-                      : Icon(
-                          Icons.play_circle_fill_rounded,
-                          color: theme.colorScheme.primary,
-                          size: 32.0,
-                        ),
-                  onTap: _isSeeding ? null : () => _confirmResetCloudDatabase(),
                 ),
               ),
 

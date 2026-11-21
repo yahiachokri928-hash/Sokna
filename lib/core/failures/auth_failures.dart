@@ -45,3 +45,7 @@ class AuthNetworkRequestFailedFailure extends Failure {
 class AuthUnknownFailure extends Failure {
   const AuthUnknownFailure([super.message = UNEXPECTED_FAILURE_MESSAGE]);
 }
+
+class AuthFailure extends Failure {
+  const AuthFailure([super.message = AUTH_REQUIRED_FAILURE_MESSAGE]);
+}
