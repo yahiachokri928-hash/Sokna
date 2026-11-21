@@ -13,6 +13,7 @@ const String NAV_PROFILE = "Profil";
 const String NAV_POST = "Publier";
 
 // Home screen
+const String HOME_USER_GREETING = "Bonjour, Yahia 👋";
 const String HOME_GREETING_TITLE = "Trouvez votre futur logement";
 const String HOME_GREETING_SUBTITLE = "Des centaines d'annonces vérifiées en Tunisie";
 const String HOME_SECTION_CATEGORIES = "Types de biens";
@@ -31,10 +32,16 @@ const String SEARCH_TITLE = "Rechercher une location";
 const String SEARCH_INPUT_LABEL = "Ville, quartier ou mot-clé";
 const String SEARCH_FILTER_TYPE = "Type de bien";
 const String SEARCH_FILTER_PRICE = "Loyer mensuel maximum";
-const String SEARCH_FILTER_ROOMS = "Nombre de pièces";
+const String SEARCH_FILTER_ROOMS = "Nombre de pièces minimum";
 const String SEARCH_RESULTS_SUFFIX = "logement(s) disponible(s)";
 const String SEARCH_NO_RESULTS = "Aucun logement ne correspond à vos filtres.";
 const String SEARCH_RESET_FILTERS = "Réinitialiser les filtres";
+const String SEARCH_ALL_REGIONS = "Toutes les régions";
+const String SEARCH_FILTER_SECTION = "Filtres avancés";
+
+// Listing card & badges
+const String LISTING_CARD_VERIFIED = "Vérifié";
+const String LISTING_ROOM_PREFIX = "S+";
 
 // Listing detail screen
 const String DETAIL_APP_BAR_TITLE = "Détail du logement";
@@ -48,8 +55,15 @@ const String DETAIL_PARKING_YES = "Parking privé";
 const String DETAIL_PARKING_NO = "Sans parking";
 const String DETAIL_AVAILABLE_DATE = "Disponible à partir du";
 const String DETAIL_OWNER_SECTION = "Bailleur vérifié";
+const String DETAIL_VERIFIED_LANDLORD = "Propriétaire vérifié par Sokna";
+const String DETAIL_DEPOSIT_TITLE = "Caution de garantie (2 mois)";
+const String DETAIL_TOTAL_INITIAL = "Total initial requis";
 const String DETAIL_CONTACT_BUTTON = "Contacter le propriétaire";
 const String DETAIL_DESCRIPTION_SECTION = "Description du bien";
+const String DETAIL_DIALOG_CONTACT_TITLE = "Contacter le bailleur";
+const String DETAIL_DIALOG_CONTACT_MESSAGE = "Voulez-vous contacter le propriétaire pour ce bien ?";
+const String DETAIL_DIALOG_CALL = "Appeler";
+const String DETAIL_DIALOG_SMS = "Envoyer un SMS";
 
 // Post listing screen & form
 const String POST_APP_BAR_TITLE = "Déposer une annonce";
@@ -108,7 +122,8 @@ const String AUTH_ROLE_LANDLORD = "Bailleur";
 const String AUTH_STATUS_VERIFIED = "Compte vérifié";
 const String AUTH_MEMBERSHIP_DATE = "Membre depuis 2026";
 
-// Actions
+// Actions & Themes
+const String THEME_TOGGLE_TOOLTIP = "Basculer le thème clair / sombre";
 const String ACTION_RETRY = "Réessayer";
 const String ACTION_CANCEL = "Annuler";
 const String ACTION_CONFIRM = "Confirmer";
