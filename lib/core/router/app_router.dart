@@ -5,6 +5,7 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/profile_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/favorites/presentation/screens/saved_screen.dart';
+import '../../features/listings/domain/entities/listing_entity.dart';
 import '../../features/listings/presentation/screens/home_screen.dart';
 import '../../features/listings/presentation/screens/listing_detail_screen.dart';
 import '../../features/listings/presentation/screens/post_listing_screen.dart';
@@ -110,8 +111,12 @@ class AppRouter {
         parentNavigatorKey: _rootNavigatorKey,
         path: AppRoutes.listingDetail,
         builder: (context, state) {
+          final extraListing = state.extra as ListingEntity?;
           final id = state.uri.queryParameters['id'];
-          return ListingDetailScreen(listingId: id);
+          return ListingDetailScreen(
+            listing: extraListing,
+            listingId: id,
+          );
         },
       ),
       GoRoute(
