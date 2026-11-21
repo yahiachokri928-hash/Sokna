@@ -41,3 +41,12 @@ class AddListingEvent extends ListingsEvent {
   @override
   List<Object?> get props => [listing];
 }
+
+class DeleteListingEvent extends ListingsEvent {
+  final String listingId;
+
+  const DeleteListingEvent(this.listingId);
+
+  @override
+  List<Object?> get props => [listingId];
+}

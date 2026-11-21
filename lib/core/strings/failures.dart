@@ -38,5 +38,11 @@ const String AUTH_NETWORK_REQUEST_FAILED_MESSAGE =
 const String PROFILE_UPDATE_FAILURE_MESSAGE =
     "Impossible de mettre à jour le profil. Veuillez vérifier vos informations.";
 
+const String LISTING_DELETE_FAILURE_MESSAGE =
+    "Impossible de supprimer l'annonce. Veuillez réessayer.";
+
+const String AUTH_REQUIRED_FAILURE_MESSAGE =
+    "Authentification requise pour effectuer cette action.";
+
 const String UNEXPECTED_FAILURE_MESSAGE =
     "Une erreur inattendue est survenue. Veuillez réessayer ultérieurement.";

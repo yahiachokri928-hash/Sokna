@@ -6,12 +6,46 @@ import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
 import '../../../favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
+import '../../../listings/domain/entities/listing_entity.dart';
+import '../../../listings/presentation/blocs/listings/listings_bloc.dart';
 import '../../../listings/presentation/blocs/theme/switchtheme_bloc.dart';
 import '../../domain/entities/user_entity.dart';
 import '../blocs/auth/auth_bloc.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  void _confirmDeleteListing(BuildContext context, ListingEntity listing) {
+    final theme = Theme.of(context);
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text(LISTING_DELETE_CONFIRM_TITLE),
+        content: const Text(LISTING_DELETE_CONFIRM_MESSAGE),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text(ACTION_CANCEL),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
+            ),
+            onPressed: () {
+              context.read<ListingsBloc>().add(DeleteListingEvent(listing.id));
+              Navigator.pop(dialogCtx);
+              SnackBarMessage.showSuccessSnackBar(
+                context: context,
+                message: LISTING_DELETE_SUCCESS,
+              );
+            },
+            child: const Text(ACTION_CONFIRM),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _showEditProfileModal(BuildContext context, UserEntity currentUser) {
     final theme = Theme.of(context);
@@ -335,6 +369,148 @@ class ProfileScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 16.0),
+
+            // My Published Listings Card (when authenticated)
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
+                if (authState is! AuthenticatedState ||
+                    authState.user.uid == null) {
+                  return const SizedBox.shrink();
+                }
+
+                final currentUid = authState.user.uid!;
+
+                return BlocBuilder<ListingsBloc, ListingsState>(
+                  builder: (context, listingsState) {
+                    final myListings = listingsState is ListingsLoaded
+                        ? listingsState.allListings
+                            .where((item) => item.ownerId == currentUid)
+                            .toList()
+                        : <ListingEntity>[];
+
+                    return Card(
+                      elevation: 1,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor:
+                                      theme.colorScheme.primaryContainer,
+                                  child: Icon(
+                                    Icons.home_work_outlined,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                ),
+                                const SizedBox(width: 12.0),
+                                Expanded(
+                                  child: Text(
+                                    PROFILE_MY_LISTINGS_TITLE,
+                                    style:
+                                        theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Badge.count(
+                                  count: myListings.length,
+                                  backgroundColor: theme.colorScheme.primary,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12.0),
+                            if (myListings.isEmpty) ...[
+                              Text(
+                                PROFILE_NO_LISTINGS,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(height: 12.0),
+                              OutlinedButton.icon(
+                                onPressed: () =>
+                                    context.push(AppRoutes.postListing),
+                                icon: const Icon(Icons.add_rounded),
+                                label:
+                                    const Text(PROFILE_PUBLISH_FIRST_LISTING),
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(44.0),
+                                ),
+                              ),
+                            ] else
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: myListings.length,
+                                separatorBuilder: (context, index) =>
+                                    const Divider(height: 16.0),
+                                itemBuilder: (context, index) {
+                                  final item = myListings[index];
+                                  return ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    leading: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: Image.network(
+                                        item.imagePath,
+                                        width: 56.0,
+                                        height: 56.0,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) => Container(
+                                          width: 56.0,
+                                          height: 56.0,
+                                          color: theme.colorScheme
+                                              .surfaceContainerHighest,
+                                          child: const Icon(
+                                            Icons.image_not_supported_rounded,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    title: Text(
+                                      item.title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      '${item.city} • ${item.price} TND / mois',
+                                    ),
+                                    trailing: IconButton(
+                                      icon: Icon(
+                                        Icons.delete_outline_rounded,
+                                        color: theme.colorScheme.error,
+                                      ),
+                                      tooltip: LISTING_DELETE_BUTTON,
+                                      onPressed: () => _confirmDeleteListing(
+                                        context,
+                                        item,
+                                      ),
+                                    ),
+                                    onTap: () => context.push(
+                                      AppRoutes.listingDetail,
+                                      extra: item,
+                                    ),
+                                  );
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+
+            const SizedBox(height: 12.0),
 
             // Saved Listings Card (Connected to SavedListingsBloc)
             Card(

@@ -82,6 +82,14 @@ const String POST_SWITCH_FURNISHED = "Logement meublé";
 const String POST_SWITCH_PARKING = "Place de parking incluse";
 const String POST_SUBMIT_BUTTON = "Publier l'annonce";
 const String POST_SUCCESS_MESSAGE = "Votre annonce a été publiée avec succès !";
+const String POST_LOGIN_REQUIRED_MESSAGE = "Veuillez vous connecter pour publier une annonce.";
+const String LISTING_DELETE_CONFIRM_TITLE = "Supprimer l'annonce";
+const String LISTING_DELETE_CONFIRM_MESSAGE = "Êtes-vous sûr de vouloir supprimer cette annonce définitivement ?";
+const String LISTING_DELETE_SUCCESS = "L'annonce a été supprimée avec succès !";
+const String LISTING_DELETE_BUTTON = "Supprimer";
+const String PROFILE_MY_LISTINGS_TITLE = "Mes annonces publiées";
+const String PROFILE_NO_LISTINGS = "Vous n'avez publié aucune annonce pour le moment.";
+const String PROFILE_PUBLISH_FIRST_LISTING = "Publier ma première annonce";
 
 // Form validation messages (RG-01, RG-02, RG-05)
 const String VALIDATION_REQUIRED = "Ce champ est obligatoire";

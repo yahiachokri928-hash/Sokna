@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sokna/core/strings/messages.dart';
 import 'package:sokna/features/listings/domain/entities/listing_entity.dart';
 import 'package:sokna/features/listings/domain/usecases/add_listing.dart';
+import 'package:sokna/features/listings/domain/usecases/delete_listing.dart';
 import 'package:sokna/features/listings/domain/usecases/get_listings.dart';
 
 part 'listings_event.dart';
@@ -11,14 +12,17 @@ part 'listings_state.dart';
 class ListingsBloc extends Bloc<ListingsEvent, ListingsState> {
   final GetListingsUseCase getListingsUseCase;
   final AddListingUseCase addListingUseCase;
+  final DeleteListingUseCase deleteListingUseCase;
 
   ListingsBloc({
     required this.getListingsUseCase,
     required this.addListingUseCase,
+    required this.deleteListingUseCase,
   }) : super(ListingsInitial()) {
     on<GetListingsEvent>(_onGetListings);
     on<FilterListingsEvent>(_onFilterListings);
     on<AddListingEvent>(_onAddListing);
+    on<DeleteListingEvent>(_onDeleteListing);
   }
 
   Future<void> _onGetListings(
@@ -96,6 +100,37 @@ class ListingsBloc extends Bloc<ListingsEvent, ListingsState> {
           emit(ListingsLoaded(
             allListings: [event.listing],
             filteredListings: [event.listing],
+          ));
+        }
+      },
+    );
+  }
+
+  Future<void> _onDeleteListing(
+    DeleteListingEvent event,
+    Emitter<ListingsState> emit,
+  ) async {
+    final failureOrUnit = await deleteListingUseCase(event.listingId);
+
+    failureOrUnit.fold(
+      (failure) => emit(ListingsError(message: failure.message)),
+      (_) {
+        if (state is ListingsLoaded) {
+          final current = state as ListingsLoaded;
+          final updatedAll = current.allListings
+              .where((item) => item.id != event.listingId)
+              .toList();
+          final updatedFiltered = _applyFilters(
+            allListings: updatedAll,
+            query: current.searchQuery,
+            category: current.selectedCategory,
+            maxPrice: current.maxPrice,
+            minRooms: current.minRooms,
+          );
+
+          emit(current.copyWith(
+            allListings: updatedAll,
+            filteredListings: updatedFiltered,
           ));
         }
       },

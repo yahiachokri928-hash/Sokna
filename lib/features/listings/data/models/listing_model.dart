@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/listing_entity.dart';
 
 class ListingModel extends ListingEntity {
@@ -18,6 +19,7 @@ class ListingModel extends ListingEntity {
     required super.ownerName,
     required super.availableFrom,
     required super.description,
+    super.ownerId,
   });
 
   factory ListingModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class ListingModel extends ListingEntity {
       ownerName: json['ownerName'] as String? ?? '',
       availableFrom: json['availableFrom'] as String? ?? '',
       description: json['description'] as String? ?? '',
+      ownerId: json['ownerId'] as String?,
     );
   }
 
@@ -59,6 +62,7 @@ class ListingModel extends ListingEntity {
       'ownerName': ownerName,
       'availableFrom': availableFrom,
       'description': description,
+      'ownerId': ownerId,
     };
   }
 
@@ -80,6 +84,53 @@ class ListingModel extends ListingEntity {
       ownerName: entity.ownerName,
       availableFrom: entity.availableFrom,
       description: entity.description,
+      ownerId: entity.ownerId,
     );
+  }
+
+  factory ListingModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+    return ListingModel(
+      id: (data['id'] as String?) ?? doc.id,
+      title: (data['title'] as String?) ?? '',
+      city: (data['city'] as String?) ?? '',
+      address: (data['address'] as String?) ?? '',
+      propertyType: (data['propertyType'] as String?) ?? '',
+      price: (data['price'] as num?)?.toInt() ?? 0,
+      rooms: (data['rooms'] as num?)?.toInt() ?? 1,
+      surface: (data['surface'] as num?)?.toDouble() ?? 0.0,
+      isFurnished: (data['isFurnished'] as bool?) ?? false,
+      hasParking: (data['hasParking'] as bool?) ?? false,
+      imagePath: (data['imagePath'] as String?) ?? '',
+      rating: (data['rating'] as num?)?.toDouble() ?? 0.0,
+      reviewCount: (data['reviewCount'] as num?)?.toInt() ?? 0,
+      ownerName: (data['ownerName'] as String?) ?? '',
+      availableFrom: (data['availableFrom'] as String?) ?? '',
+      description: (data['description'] as String?) ?? '',
+      ownerId: data['ownerId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'id': id,
+      'title': title,
+      'city': city,
+      'address': address,
+      'propertyType': propertyType,
+      'price': price,
+      'rooms': rooms,
+      'surface': surface,
+      'isFurnished': isFurnished,
+      'hasParking': hasParking,
+      'imagePath': imagePath,
+      'rating': rating,
+      'reviewCount': reviewCount,
+      'ownerName': ownerName,
+      'availableFrom': availableFrom,
+      'description': description,
+      'ownerId': ownerId,
+      'createdAt': FieldValue.serverTimestamp(),
+    };
   }
 }

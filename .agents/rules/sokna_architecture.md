@@ -88,7 +88,8 @@ lib/
     │   │   └── usecases/
     │   │       ├── get_listings.dart
     │   │       ├── search_listings.dart
-    │   │       └── add_listing.dart
+    │   │       ├── add_listing.dart
+    │   │       └── delete_listing.dart
     │   └── presentation/
     │       ├── blocs/
     │       │   ├── listings/{listings_bloc.dart, listings_event.dart, listings_state.dart}

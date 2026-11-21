@@ -3,12 +3,15 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 
 import '../../../../core/exceptions/exceptions.dart';
+import '../../../../core/firebase/auth_service.dart';
+import '../../../../core/firebase/firestore_service.dart';
 import '../models/listing_model.dart';
 
 abstract class ListingDataSource {
   Future<List<ListingModel>> getListings();
   Future<List<ListingModel>> searchListings(String query);
   Future<void> addListing(ListingModel listing);
+  Future<void> deleteListing(String listingId);
 }
 
 class ListingDataSourceImpl implements ListingDataSource {
@@ -17,23 +20,31 @@ class ListingDataSourceImpl implements ListingDataSource {
   static const String localAssetPath = 'assets/data/listings.json';
 
   final http.Client client;
+  final FirestoreService? firestoreService;
+  final AuthService? authService;
 
   // In-memory storage for newly added listings during the app session
   final List<ListingModel> _sessionListings = [];
 
-  ListingDataSourceImpl({required this.client});
+  ListingDataSourceImpl({
+    required this.client,
+    this.firestoreService,
+    this.authService,
+  });
 
   @override
   Future<List<ListingModel>> getListings() async {
     List<ListingModel> baseListings = [];
 
+    // 1. Fetch base listings from REST / local asset
     try {
       final response = await client
           .get(Uri.parse(remoteUrl))
           .timeout(const Duration(seconds: 4));
 
       if (response.statusCode == 200) {
-        final List<dynamic> jsonList = jsonDecode(response.body) as List<dynamic>;
+        final List<dynamic> jsonList =
+            jsonDecode(response.body) as List<dynamic>;
         baseListings = jsonList
             .map((item) => ListingModel.fromJson(item as Map<String, dynamic>))
             .toList();
@@ -45,13 +56,40 @@ class ListingDataSourceImpl implements ListingDataSource {
       baseListings = await _loadFromLocalAsset();
     }
 
-    // Merge session-added listings (most recent first)
-    final combined = <ListingModel>[
-      ..._sessionListings,
-      ...baseListings.where(
-        (base) => !_sessionListings.any((added) => added.id == base.id),
-      ),
-    ];
+    // 2. Fetch user-published listings from Cloud Firestore
+    List<ListingModel> cloudListings = [];
+    if (firestoreService != null) {
+      try {
+        final snapshot = await firestoreService!.listingsCollection.get();
+        cloudListings = snapshot.docs
+            .map((doc) => ListingModel.fromFirestore(doc))
+            .toList();
+      } catch (_) {
+        // Offline resilience: ignore Firestore query failure
+      }
+    }
+
+    // 3. Merge: session listings + cloud listings + base listings without duplicates
+    final combined = <ListingModel>[];
+    final Set<String> seenIds = {};
+
+    for (final listing in _sessionListings) {
+      if (seenIds.add(listing.id)) {
+        combined.add(listing);
+      }
+    }
+
+    for (final listing in cloudListings) {
+      if (seenIds.add(listing.id)) {
+        combined.add(listing);
+      }
+    }
+
+    for (final listing in baseListings) {
+      if (seenIds.add(listing.id)) {
+        combined.add(listing);
+      }
+    }
 
     return combined;
   }
@@ -85,6 +123,48 @@ class ListingDataSourceImpl implements ListingDataSource {
 
   @override
   Future<void> addListing(ListingModel listing) async {
-    _sessionListings.insert(0, listing);
+    final user = authService?.currentUser;
+    if (user == null) {
+      throw const AuthException('AUTH_REQUIRED');
+    }
+
+    final listingWithOwner = ListingModel(
+      id: listing.id,
+      title: listing.title,
+      city: listing.city,
+      address: listing.address,
+      propertyType: listing.propertyType,
+      price: listing.price,
+      rooms: listing.rooms,
+      surface: listing.surface,
+      isFurnished: listing.isFurnished,
+      hasParking: listing.hasParking,
+      imagePath: listing.imagePath,
+      rating: listing.rating,
+      reviewCount: listing.reviewCount,
+      ownerName: listing.ownerName.isNotEmpty
+          ? listing.ownerName
+          : (user.displayName ?? 'Propriétaire'),
+      availableFrom: listing.availableFrom,
+      description: listing.description,
+      ownerId: user.uid,
+    );
+
+    if (firestoreService != null) {
+      await firestoreService!.listingsCollection
+          .doc(listingWithOwner.id)
+          .set(listingWithOwner.toFirestore());
+    }
+
+    _sessionListings.removeWhere((item) => item.id == listingWithOwner.id);
+    _sessionListings.insert(0, listingWithOwner);
+  }
+
+  @override
+  Future<void> deleteListing(String listingId) async {
+    if (firestoreService != null) {
+      await firestoreService!.listingsCollection.doc(listingId).delete();
+    }
+    _sessionListings.removeWhere((item) => item.id == listingId);
   }
 }

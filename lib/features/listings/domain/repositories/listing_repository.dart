@@ -6,4 +6,5 @@ abstract class ListingRepository {
   Future<Either<Failure, List<ListingEntity>>> getListings();
   Future<Either<Failure, List<ListingEntity>>> searchListings(String query);
   Future<Either<Failure, Unit>> addListing(ListingEntity listing);
+  Future<Either<Failure, Unit>> deleteListing(String listingId);
 }
