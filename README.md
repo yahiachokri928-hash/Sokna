@@ -20,13 +20,30 @@ En Tunisie, la recherche d'un logement locatif (studios pour étudiants, apparte
 **Sokna (سكنى)** répond directement à cette problématique en offrant une plateforme mobile unifiée, rapide, ergonomique et résiliente :
 1. **Transparence totale des loyers en Dinars Tunisiens (TND)** avec détail des charges et caution.
 2. **Recherche multicritère instantanée** (ville, typologie, budget maximal, nombre de pièces S+X, meublé, parking).
-3. **Gestion réactive des favoris** synchronisée en temps réel et persistée localement hors ligne.
-4. **Publication sécurisée d'annonces de location** avec contrôle strict de validation des formulaires.
-5. **Résilience réseau maximale** grâce à une double stratégie : API REST distante GitHub Raw couplée à un secours local instantané (`assets/data/listings.json`) garantissant un fonctionnement fluide même sans connexion Internet.
+3. **Gestion réactive des favoris** synchronisée en temps réel et persistée localement hors ligne et dans le Cloud Firestore.
+4. **Publication sécurisée d'annonces de location** avec contrôle strict de validation des formulaires et liaison directe au bailleur authentifié.
+5. **Résilience réseau maximale** grâce à une triple stratégie : API REST distante GitHub Raw, base Cloud Firestore temps réel, et secours local instantané (`assets/data/listings.json` + `SharedPreferences`).
 
 ---
 
-## 2. Fiche Projet Officielle (Jalon J0)
+## 2. Architecture Cloud Firebase (`firebase-cloud`) & Version Offline (`v1.0.0-offline`)
+
+Le projet Sokna propose deux variantes architecturales complémentaires et versionnées :
+- **Branche `main` (Tag `v1.0.0-offline`) :** Version socle autonome conforme aux jalons J0-J3 avec catalogue REST GitHub Raw, persistance locale `SharedPreferences` et repli offline complet.
+- **Branche `firebase-cloud` :** Version Cloud complète intégrant Firebase Auth et Cloud Firestore pour une persistance multi-utilisateurs temps réel.
+
+### Spécifications Cloud Firestore
+- **`users/{userId}` :** Profils utilisateurs sécurisés (`uid`, `name`, `email`, `profilURL`, `phone`, `role`, `createdAt`, `savedListingIds: []`).
+  - **Sécurité (`firestore.rules`) :** Lecture et écriture strictement réservées au titulaire authentifié (`request.auth.uid == userId`).
+- **`listings/{listingId}` :** Annonces publiées par les utilisateurs et bailleurs (`id`, `title`, `city`, `price`, `ownerId`, `ownerName`, etc.).
+  - **Sécurité (`firestore.rules`) :** Lecture publique universelle (`allow read: if true`), création et modification réservées aux utilisateurs authentifiés propriétaires (`ownerId == request.auth.uid`).
+- **Catalogue Hybride Fusionné :** `ListingDataSourceImpl` fusionne automatiquement en mémoire le catalogue de base (REST GitHub Raw / asset local) et les annonces Cloud Firestore sans aucun doublon d'identifiant.
+- **Favoris par Utilisateur & Cache Hybride :** Les favoris sont synchronisés sur Firestore dans `users/{uid}.savedListingIds` et immédiatement mis en miroir dans `SharedPreferences` (`ENF3`, `EF7`).
+- **Espace Propriétaire Dédié :** L'écran de profil affiche la section **« Mes annonces publiées »** permettant à l'utilisateur connecté de consulter ses biens et de les supprimer avec confirmation (`DeleteListingUseCase`).
+
+---
+
+## 3. Fiche Projet Officielle (Jalon J0)
 
 | Rubrique | Spécification Officielle Validée |
 | :--- | :--- |

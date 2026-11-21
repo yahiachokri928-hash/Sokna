@@ -71,6 +71,36 @@ Chaque phase a fait l'objet d'instructions précises, de vérifications statique
 
 ---
 
+### Phases F1 à F4 — Extension Cloud Firebase & Firestore (`firebase-cloud`)
+
+Pour aller au-delà des exigences minimales et doter l'application d'un backend serverless de niveau industriel, quatre phases additionnelles ont été exécutées :
+
+1. **Phase F1 (Socle Cloud & Règles de Sécurité) :**
+   - Ajout de `cloud_firestore: ^7.2.0` et élévation de `minSdk = 23` dans `android/app/build.gradle.kts`.
+   - Création du service d'infrastructure `FirestoreService` encapsulant `FirebaseFirestore.instance` et injecté dans `lib/core/di/service_locator.dart`.
+   - Rédaction des règles de sécurité `firestore.rules` verrouillant les collections `users/{userId}` et `listings/{listingId}`.
+   - Durcissement de `.agents/rules/sokna_architecture.md` (interdiction stricte de `cloud_firestore` en dehors de `core/firebase/` et `features/*/data/`).
+
+2. **Phase F2 (Profils Utilisateurs Cloud Firestore) :**
+   - Extension de `UserEntity` et `UserModel` avec `phone`, `role` (`Locataire` / `Propriétaire`), `createdAt`, `fromFirestore` et `toFirestore`.
+   - Implémentation de `GetCurrentUserProfileUseCase` et synchronisation bidirectionnelle dans `UserDataSourceImpl` (création du document Firestore à l'inscription, vérification à la connexion, mise à jour synchrone).
+   - Ajout d'une feuille modale de modification de profil (`_showEditProfileModal`) dans `ProfileScreen` dispatchant `UpdateUserProfileEvent`.
+
+3. **Phase F3 (Favoris Cloud par Utilisateur & Cache Hybride) :**
+   - Création de `FavoritesRemoteDataSource` gérant les opérations atomiques `FieldValue.arrayUnion` et `FieldValue.arrayRemove` sur `users/{uid}.savedListingIds`.
+   - Réalisation de `FavoritesRepositoryImpl` hybride : synchronisation Cloud prioritaire quand connecté et en ligne, avec miroir synchrone dans `SharedPreferences` (`FavoritesLocalDataSource`) et repli gracieux hors-ligne (`EF7`, `ENF3`).
+   - Ajout d'un `BlocListener<AuthBloc, AuthState>` global dans `main.dart` déclenchant automatiquement `LoadSavedListingsEvent` lors de toute transition d'authentification (`EF5`).
+
+4. **Phase F4 (Annonces Cloud, Gestion Propriétaire & Release APK) :**
+   - Ajout de `ownerId` à `ListingEntity` et `ListingModel` (`fromFirestore`, `toFirestore`).
+   - Création de `DeleteListingUseCase` et intégration de la suppression dans `ListingsBloc` (`DeleteListingEvent`).
+   - Fusion transparente dans `ListingDataSourceImpl` du catalogue REST GitHub Raw / asset local et des annonces Firestore en temps réel.
+   - Protection de `PostListingScreen` (accès réservé aux utilisateurs authentifiés avec rattachement automatique de `ownerId`).
+   - Section **« Mes annonces publiées »** dans `ProfileScreen` permettant la consultation et la suppression unitaire avec dialogue de confirmation.
+   - Suite de tests portée à 18 tests automatisés réussis et compilation de l'APK Release.
+
+---
+
 ## 3. Guide de Révision pour la Soutenance Individuelle (Semaine S9)
 
 Cette section synthétise les réponses types aux questions récurrentes du jury d'examen à l'ISET Bizerte.
@@ -81,18 +111,26 @@ Cette section synthétise les réponses types aux questions récurrentes du jury
 ### Q2 : Quelle est la différence entre `ListingModel` et `ListingEntity` ?
 > **Réponse :** 
 > - `ListingEntity` (couche **Domain**) est une classe immuable pure Dart étendant `Equatable`. Elle ne contient aucune logique de sérialisation JSON.
-> - `ListingModel` (couche **Data**) hérite de `ListingEntity` et ajoute les méthodes techniques `fromJson()`, `toJson()` et `fromEntity()`. La couche présentation ne manipule que des `ListingEntity`, respectant le principe d'inversion des dépendances.
+> - `ListingModel` (couche **Data**) hérite de `ListingEntity` et ajoute les méthodes techniques `fromJson()`, `toJson()`, `fromFirestore()` et `toFirestore()`. La couche présentation ne manipule que des `ListingEntity`, respectant le principe d'inversion des dépendances.
 
 ### Q3 : Pourquoi utiliser `Either<Failure, T>` de la bibliothèque `dartz` ?
 > **Réponse :** Le type fonctionnel `Either` remplace les blocs `try/catch` imprévisibles dans l'interface graphique. Une fonction retourne explicitement soit un échec à gauche (`Left(Failure)`), soit un succès à droite (`Right(T)`). Dans le BLoC, l'appel à `.fold(...)` oblige le développeur à traiter de façon exhaustive le cas d'erreur (en émettant un `State` d'erreur) et le cas de succès, rendant le code totalement sûr contre les exceptions non gérées.
 
-### Q4 : Comment fonctionne la synchronisation des favoris sans base de données centrale ?
-> **Réponse :** Grâce au pattern BLoC (`SavedListingsBloc`) fourni au sommet de l'arbre des widgets (`main.dart` via `BlocProvider`). Lorsque l'utilisateur clique sur le cœur d'une `ListingCard` ou de `ListingDetailScreen`, l'événement `ToggleSavedListingEvent` est émis. Le BLoC modifie sa liste en mémoire, sauvegarde la liste des IDs dans `SharedPreferences` et émet un nouvel état `SavedListingsLoaded`. Tous les widgets abonnés (`BlocBuilder`) se reconstruisent instantanément en réagissant à ce nouvel état.
+### Q4 : Comment fonctionne la synchronisation des favoris dans la version Cloud ?
+> **Réponse :** Dans la version Cloud (`firebase-cloud`), `FavoritesRepositoryImpl` adopte une stratégie hybride : si l'utilisateur est authentifié et que le réseau est disponible, les identifiants de favoris sont enregistrés dans Cloud Firestore (`users/{uid}.savedListingIds`) via des opérateurs atomiques (`FieldValue.arrayUnion`/`arrayRemove`) puis répliqués dans `SharedPreferences`. Si l'utilisateur est déconnecté ou en mode invité, l'application se rabat sur le cache local `SharedPreferences` sans jamais bloquer l'interface.
 
 ### Q5 : Pourquoi stocker uniquement les IDs dans `SharedPreferences` plutôt que les annonces entières ?
 > **Réponse :** Pour deux raisons cruciales (`RG-04`) :
 > 1. **Économie de mémoire :** Une liste de chaînes de caractères (`List<String>`) occupe quelques octets contre plusieurs dizaines de kilo-octets pour des objets JSON complets.
-> 2. **Cohérence des données :** Si le propriétaire modifie le loyer d'un appartement de 800 TND à 750 TND sur l'API, l'utilisateur retrouvera le nouveau prix actualisé dans ses favoris, car `SavedScreen` croise les identifiants persistés avec les entités à jour issues de `ListingsBloc`.
+> 2. **Cohérence des données :** Si le propriétaire modifie le loyer d'un appartement de 800 TND à 750 TND sur l'API ou Firestore, l'utilisateur retrouvera le nouveau prix actualisé dans ses favoris, car `SavedScreen` croise les identifiants persistés avec les entités à jour issues de `ListingsBloc`.
 
 ### Q6 : Comment est assurée la résilience hors-ligne de l'application ?
-> **Réponse :** Dans `ListingDataSourceImpl`, nous implémentons un mécanisme de repli transparent (*graceful degradation*). Si la requête HTTP vers GitHub Raw échoue (absence de réseau, serveur inaccessible), le code intercepte l'erreur et charge immédiatement le fichier `assets/data/listings.json` via `rootBundle.loadString()`. L'utilisateur dispose ainsi toujours d'un catalogue complet fonctionnel.
+> **Réponse :** Dans `ListingDataSourceImpl`, nous implémentons un mécanisme de repli transparent (*graceful degradation*). Si la requête HTTP vers GitHub Raw échoue (absence de réseau, serveur inaccessible), le code intercepte l'erreur et charge immédiatement le fichier `assets/data/listings.json` via `rootBundle.loadString()`. De même, les échecs Firestore sont interceptés et l'application demeure 100% opérationnelle en lecture locale.
+
+### Q7 : Comment les règles de sécurité Firestore garantissent-elles l'intégrité des données ?
+> **Réponse :** Dans `firestore.rules`, nous appliquons le principe du moindre privilège :
+> 1. `users/{userId}` : accessible en lecture et écriture uniquement si `request.auth.uid == userId`.
+> 2. `listings/{listingId}` : accessible en lecture par tout le monde (`allow read: if true`), mais modifiable/supprimable uniquement par le créateur de l'annonce (`resource.data.ownerId == request.auth.uid`).
+
+### Q8 : Que se passe-t-il quand un utilisateur change de session (connexion / déconnexion) ?
+> **Réponse :** Dans `main.dart`, le widget racine écoute les transitions de `AuthBloc` via `BlocListener<AuthBloc, AuthState>`. Dès qu'un état `AuthenticatedState` ou `UnAuthenticatedState` est émis, un événement `LoadSavedListingsEvent` est immédiatement dépêché à `SavedListingsBloc`. L'interface recharge instantanément la liste des favoris propre au compte connecté (ou du profil invité) sans redémarrage de l'application.
