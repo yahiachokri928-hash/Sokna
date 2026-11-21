@@ -159,6 +159,8 @@ class FirestoreCloudSeeder {
         ...demoTenants,
       ];
 
+  static List<TunisianDemoAccount> get demoAccounts => allDemoAccounts;
+
   FirestoreCloudSeeder({
     required this.authService,
     required this.firestoreService,

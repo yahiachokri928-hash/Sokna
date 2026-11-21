@@ -6,6 +6,7 @@ void main() {
     expect(FirestoreCloudSeeder.demoLandlords.length, equals(6));
     expect(FirestoreCloudSeeder.demoTenants.length, equals(4));
     expect(FirestoreCloudSeeder.allDemoAccounts.length, equals(10));
+    expect(FirestoreCloudSeeder.demoAccounts.length, equals(10));
 
     for (final account in FirestoreCloudSeeder.allDemoAccounts) {
       expect(account.email, endsWith('@sokna.tn'));

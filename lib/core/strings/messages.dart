@@ -174,6 +174,17 @@ const String DETAIL_REVIEW_SUCCESS = "Votre avis a été publié avec succès !"
 const String DETAIL_REVIEW_LOGIN_PROMPT = "Veuillez vous connecter pour laisser un avis.";
 const String DETAIL_REVIEW_EMPTY_COMMENT = "Veuillez saisir un commentaire pour votre avis.";
 
+// Guest Profile Screen & Demo accounts (Phase G3)
+const String PROFILE_GUEST_TITLE = "Mode Invité";
+const String PROFILE_GUEST_SUBTITLE =
+    "Vous consultez les annonces publiques en direct. Connectez-vous pour débloquer toutes les fonctionnalités.";
+const String PROFILE_GUEST_FEATURE_FAVORITES = "Sauvegarder vos favoris sur le cloud";
+const String PROFILE_GUEST_FEATURE_POST = "Publier et gérer vos annonces de location";
+const String PROFILE_GUEST_FEATURE_REVIEWS = "Laisser des avis et noter les logements";
+const String PROFILE_DEMO_ACCOUNTS_EXPANSION_TITLE = "Comptes de test Tunisiens (Démo APK)";
+const String PROFILE_DEMO_ACCOUNTS_EXPANSION_SUBTITLE =
+    "Connectez-vous instantanément en 1 clic pour tester les rôles Propriétaire et Locataire";
+
 // Demo accounts & Cloud Seeder (Phase C3)
 const String PROFILE_DEMO_ACCOUNTS_TITLE = "Comptes Démo Tunisiens (Connexion 1-clic)";
 const String PROFILE_DEMO_ACCOUNTS_SUBTITLE = "Connectez-vous instantanément en un clic pour tester l'application";
