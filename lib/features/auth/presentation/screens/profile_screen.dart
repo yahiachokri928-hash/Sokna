@@ -483,6 +483,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       leading: CircleAvatar(
         radius: 16.0,
         backgroundImage: NetworkImage(account.avatarUrl),
+        onBackgroundImageError: (_, _) {},
         backgroundColor: theme.colorScheme.primaryContainer,
         child: (account.avatarUrl.isEmpty)
             ? Text(
@@ -544,6 +545,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   backgroundImage: (user.profilURL != null && user.profilURL!.isNotEmpty)
                       ? NetworkImage(user.profilURL!)
                       : null,
+                  onBackgroundImageError: (_, _) {},
                   child: (user.profilURL == null || user.profilURL!.isEmpty)
                       ? Text(
                           userName.isNotEmpty ? userName.substring(0, 1).toUpperCase() : 'U',

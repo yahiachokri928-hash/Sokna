@@ -30,9 +30,15 @@ En Tunisie, la recherche d'un logement locatif (studios pour étudiants, apparte
 
 Le projet Sokna propose deux variantes architecturales complémentaires et versionnées :
 - **Branche `main` (Tag `v1.0.0-offline`) :** Version socle autonome conforme aux jalons J0-J3 avec catalogue REST GitHub Raw, persistance locale `SharedPreferences` et repli offline complet.
-- **Branche `firebase-cloud` :** Version Cloud complète intégrant Firebase Auth et Cloud Firestore pour une persistance multi-utilisateurs temps réel.
+- **Branche `firebase-cloud` :** Version Cloud complète intégrant Firebase Auth et Cloud Firestore pour une persistance multi-utilisateurs temps réel avec flux Invité sécurisé (*Guest-First & Cloud-Only*).
 
-### Spécifications Cloud Firestore
+### Spécifications Cloud Firestore & Flux Invité (Guest-First)
+- **Navigation Invité Libre :** Dès l'ouverture de l'application, tout utilisateur accède directement au catalogue complet d'annonces en direct depuis Cloud Firestore (`ListingsBloc`), sans popups intrusifs ni auto-seed bloquant.
+- **Portes d'accès Invités (*Guest Gates*) :**
+  - **Favoris :** Le clic sur l'icône cœur en mode invité affiche un `SnackBar` flottant avec action immédiate **« Se connecter »**. L'écran `SavedScreen` affiche le composant Material 3 `GuestAuthPrompt`.
+  - **Publication d'Annonces :** L'écran `PostListingScreen` affiche `GuestAuthPrompt` invitant à la connexion/inscription avant toute saisie.
+  - **Avis Locataires :** La consultation des avis existants reste publique sur `ListingDetailScreen`, tandis que le formulaire de notation est élégamment remplacé par `GuestAuthPrompt` compact.
+- **Sélecteur Démo 1-Clic pour Testeurs APK :** L'écran `ProfileScreen` en mode invité affiche une carte rétractable avec les 10 comptes tunisiens pré-configurés (`demoAccounts` : 6 propriétaires et 4 locataires) permettant aux membres du jury de tester les deux rôles en 1 tap sans inscription manuelle.
 - **`users/{userId}` :** Profils utilisateurs sécurisés (`uid`, `name`, `email`, `profilURL`, `phone`, `role`, `city`, `createdAt`, `savedListingIds: []`).
   - **Sécurité (`firestore.rules`) :** Lecture et écriture strictement réservées au titulaire authentifié (`request.auth.uid == userId`).
 - **`listings/{listingId}` :** Catalogue 100% Cloud Firestore ordonné par date de création descendante (`createdAt`), enrichi des coordonnées du bailleur (`ownerId`, `ownerName`, `ownerPhone`, `ownerAvatarUrl`).
@@ -40,11 +46,6 @@ Le projet Sokna propose deux variantes architecturales complémentaires et versi
   - **Cache Hors-Ligne (`ENF3`) :** Mise en cache automatique dans `SharedPreferences` (`CACHED_CLOUD_LISTINGS`) pour une consultation fluide même sans connexion Internet.
 - **`listings/{listingId}/reviews/{reviewId}` (Avis & Évaluations) :** Sous-collection d'avis locataires reliés à l'utilisateur (`id`, `listingId`, `userId`, `userName`, `userAvatarUrl`, `rating`, `comment`, `createdAt`).
   - **Recalcul Dynamique :** Chaque avis soumis recalcule instantanément la note moyenne exacte (arrondie à 1 décimale) et le nombre total d'avis sur le logement dans Firestore.
-  - **Composant Interactif :** Sélecteur 1 à 5 étoiles, commentaire et vérification d'authentification sur `ListingDetailScreen`.
-- **Seeder Cloud Tunisien Idempotent (`FirestoreCloudSeeder`) :**
-  - **10 comptes tunisiens réalistes** (mot de passe universel `Sokna2026!`) : 6 propriétaires (`amine.benali@sokna.tn`, `salma.trabelsi@sokna.tn`, `youssef.gharbi@sokna.tn`, `ons.mansouri@sokna.tn`, `mehdi.bouazizi@sokna.tn`, `nourhene.khelifi@sokna.tn`) et 4 locataires (`aziz.chaabane@sokna.tn`, `meriem.jaziri@sokna.tn`, `bilel.hammami@sokna.tn`, `ines.dridi@sokna.tn`).
-  - **16 annonces tunisiennes authentiques** et **36 avis locataires réalistes** répartis sur Bizerte, Tunis, La Marsa, Gammarth, Hammamet, Nabeul, Sousse, Monastir, Mahdia et Sfax.
-  - **Auto-seed au démarrage** si la base est vide et **sélecteur de comptes démo 1-clic** sur l'écran `ProfileScreen`.
 - **Favoris par Utilisateur & Cache Hybride :** Les favoris sont synchronisés sur Firestore dans `users/{uid}.savedListingIds` et immédiatement mis en miroir dans `SharedPreferences` (`ENF3`, `EF7`).
 - **Espace Propriétaire Dédié :** L'écran de profil affiche la section **« Mes annonces publiées »** permettant à l'utilisateur connecté de consulter ses biens et de les supprimer avec confirmation (`DeleteListingUseCase`).
 

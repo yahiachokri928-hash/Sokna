@@ -105,6 +105,7 @@ void main() {
       authService: null,
     );
 
+    final initialStorage = List.from(mockLocal.storage);
     final result = await repository.toggleSavedListing('sokna_005');
 
     expect(result.isLeft(), isTrue);
@@ -112,6 +113,8 @@ void main() {
       (failure) => expect(failure.message, LOGIN_REQUIRED_FAVORITES_MESSAGE),
       (_) => fail('Should return AuthFailure'),
     );
+    // Verifies no write to local storage occurs in guest mode
+    expect(mockLocal.storage, equals(initialStorage));
   });
 
   test('when authenticated and online, toggleSavedListing updates cloud and mirrors to local', () async {

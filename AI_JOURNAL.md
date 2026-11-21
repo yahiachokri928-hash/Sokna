@@ -134,6 +134,27 @@ Afin de transformer Sokna en une véritable application de production multi-util
 
 ---
 
+### Phases G1 à G4 — Flux Invité Sécurisé, Portes d'Accès & Démo APK (`firebase-cloud`)
+
+Pour préparer la mise en production et garantir une expérience utilisateur parfaite lors des tests d'évaluation par le jury, quatre phases d'affinement « Guest-First » ont été menées :
+
+1. **Phase G1 (Suppression de l'Auto-Seeding & Données Utilisateurs Cloud Pures) :**
+   - Suppression définitive de l'auto-seed au démarrage dans `main.dart` pour éviter toute écriture concurrente ou réinitialisation intempestive en production.
+   - Suppression du bouton de réinitialisation/seeding de la base depuis l'écran de profil.
+   - Verrouillage des favoris en mode invité : `getSavedListingIds()` renvoie `[]` et `toggleSavedListing()` renvoie `Left(AuthFailure)` sans écriture locale parasite.
+2. **Phase G2 (Portes d'Accès Invités - *Guest Gates*) :**
+   - Création du composant Material 3 réutilisable `GuestAuthPrompt` (`lib/core/widgets/guest_auth_prompt.dart`) en modes complet et compact.
+   - Verrouillage élégant du bouton favori sur `ListingCard` et `ListingDetailScreen` (avec SnackBar d'action « Se connecter »).
+   - Verrouillage de la publication sur `PostListingScreen` et de la notation locataire sur `ListingDetailScreen` avec affichage de `GuestAuthPrompt`.
+3. **Phase G3 (Écran Profil Invité & Connexion Démo 1-Clic APK) :**
+   - Refonte complète de `ProfileScreen` en mode invité : carte « Mode Invité », checklist des fonctionnalités réservées aux membres, boutons pleine largeur « Se connecter » et « Créer un compte », bascule de thème clair/sombre.
+   - Carte « Comptes de test Tunisiens (Démo APK) » listant les 10 comptes tunisiens réalistes (`demoAccounts`) avec connexion instantanée en 1 tap pour tester les rôles Propriétaire et Locataire sans saisie manuelle.
+4. **Phase G4 (Consolidation des Tests, Documentation & APK Invité/Cloud) :**
+   - Suite de tests portée à **36 tests automatisés** réussis avec 0 avertissement `flutter analyze`.
+   - Documentation exhaustive et compilation de l'APK Release final.
+
+---
+
 ## 3. Guide de Révision pour la Soutenance Individuelle (Semaine S9)
 
 Cette section synthétise les réponses types aux questions récurrentes du jury d'examen à l'ISET Bizerte.
@@ -150,7 +171,9 @@ Cette section synthétise les réponses types aux questions récurrentes du jury
 > **Réponse :** Le type fonctionnel `Either` remplace les blocs `try/catch` imprévisibles dans l'interface graphique. Une fonction retourne explicitement soit un échec à gauche (`Left(Failure)`), soit un succès à droite (`Right(T)`). Dans le BLoC, l'appel à `.fold(...)` oblige le développeur à traiter de façon exhaustive le cas d'erreur (en émettant un `State` d'erreur) et le cas de succès, rendant le code totalement sûr contre les exceptions non gérées.
 
 ### Q4 : Comment fonctionne la synchronisation des favoris dans la version Cloud ?
-> **Réponse :** Dans la version Cloud (`firebase-cloud`), `FavoritesRepositoryImpl` adopte une stratégie hybride : si l'utilisateur est authentifié et que le réseau est disponible, les identifiants de favoris sont enregistrés dans Cloud Firestore (`users/{uid}.savedListingIds`) via des opérateurs atomiques (`FieldValue.arrayUnion`/`arrayRemove`) puis répliqués dans `SharedPreferences`. Si l'utilisateur est déconnecté ou en mode invité, l'application se rabat sur le cache local `SharedPreferences` sans jamais bloquer l'interface.
+> **Réponse :** Dans la version Cloud (`firebase-cloud`), la gestion des favoris suit une politique stricte *Cloud-First & Guest-Gated* :
+> - En mode invité, les favoris sont verrouillés avec invitation immédiate à la connexion (`GuestAuthPrompt` et SnackBar d'action), sans écriture locale parasite.
+> - Dès l'authentification (`authService.currentUser != null`), les identifiants sont synchronisés en direct sur Cloud Firestore (`users/{uid}.savedListingIds`) avec des opérateurs atomiques (`arrayUnion`/`arrayRemove`) et immédiatement mis en miroir dans `SharedPreferences` pour garantir une consultation hors-ligne fluide (`ENF3`).
 
 ### Q5 : Pourquoi stocker uniquement les IDs dans `SharedPreferences` plutôt que les annonces entières ?
 > **Réponse :** Pour deux raisons cruciales (`RG-04`) :
