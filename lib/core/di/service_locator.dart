@@ -27,6 +27,7 @@ import '../../features/listings/domain/usecases/search_listings.dart';
 import '../../features/listings/presentation/blocs/listings/listings_bloc.dart';
 import '../../features/listings/presentation/blocs/theme/switchtheme_bloc.dart';
 import '../firebase/auth_service.dart';
+import '../firebase/firestore_service.dart';
 import '../network/network_info.dart';
 
 final sl = GetIt.instance;
@@ -49,6 +50,10 @@ Future<void> initServiceLocator() async {
 
   sl.registerLazySingleton<AuthService>(
     () => AuthService(),
+  );
+
+  sl.registerLazySingleton<FirestoreService>(
+    () => FirestoreService(),
   );
 
   //! Feature: Listings

@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection: only the authenticated user can read or write their own profile
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Listings collection: public read, authenticated owner-only mutation
+    match /listings/{listingId} {
+      allow read: if true;
+      allow create: if request.auth != null &&
+        (request.resource.data.ownerId == request.auth.uid ||
+         (resource != null && resource.data.ownerId == request.auth.uid));
+      allow update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+    }
+  }
+}

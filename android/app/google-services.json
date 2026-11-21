@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "14223692440",
+    "project_id": "sokna-cloud-app",
+    "storage_bucket": "sokna-cloud-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14223692440:android:89db263bb61e8dd33136ed",
+        "android_client_info": {
+          "package_name": "tn.isetbizerte.sokna"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoIRSCR2RGAd1Bxr_-QZ1PmC79zmwpgpY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

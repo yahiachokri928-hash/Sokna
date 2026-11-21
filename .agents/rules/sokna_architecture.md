@@ -17,7 +17,7 @@ NEVER delete or modify the existing `documents uni/` folder or `.gitattributes`.
 - **Navigation:** `go_router` (`AppRouter` + `ShellRoute` + `GoRouterRefreshNotifier`)
 - **REST API & Connectivity:** `http` + `internet_connection_checker` (`NetworkInfo` / `NetworkInfoImpl`)
 - **Local Persistence:** `shared_preferences`
-- **Auth / Backend:** `firebase_core`, `firebase_auth`
+- **Auth / Backend:** `firebase_core`, `firebase_auth`, `cloud_firestore`
 - **Validation & Web:** `validators`, `package:flutter_web_plugins/flutter_web_plugins.dart`
 - **Lints:** `flutter_lints` (`flutter analyze` must pass with 0 errors/warnings)
 
@@ -38,7 +38,8 @@ lib/
 │   │   ├── auth_failures.dart
 │   │   └── listing_failures.dart
 │   ├── firebase/
-│   │   └── auth_service.dart
+│   │   ├── auth_service.dart
+│   │   └── firestore_service.dart
 │   ├── network/
 │   │   └── network_info.dart
 │   ├── router/
@@ -120,14 +121,15 @@ lib/
 ```
 
 ## 3. Strict Layer Boundaries & BLoC Safety Rules
-1. **`domain/` (Pure Dart):** Allowed imports: `dart:*`, `equatable`, `dartz`, `core/failures/*`, and `domain/`. Forbidden: `flutter/*`, `http`, `shared_preferences`, `firebase_*`, `data/*`, `presentation/*`.
-2. **`data/`:** Allowed: `domain/*`, `core/*`, external SDKs (`http`, `shared_preferences`, `firebase_*`, `dartz`). Forbidden: `presentation/*`, `flutter/material.dart`.
-3. **`presentation/`:** Allowed: `domain/*`, `core/*`, `flutter/*`, `flutter_bloc`, `go_router`, `validators`. Forbidden: `*Model`, `*DataSource`, `*RepositoryImpl`.
-4. **Modern BLoC Rules:**
+1. **`domain/` (Pure Dart):** Allowed imports: `dart:*`, `equatable`, `dartz`, `core/failures/*`, and `domain/`. Forbidden: `flutter/*`, `http`, `shared_preferences`, `firebase_*`, `cloud_firestore`, `data/*`, `presentation/*`.
+2. **`data/`:** Allowed: `domain/*`, `core/*`, external SDKs (`http`, `shared_preferences`, `firebase_*`, `cloud_firestore`, `dartz`). Forbidden: `presentation/*`, `flutter/material.dart`.
+3. **`presentation/`:** Allowed: `domain/*`, `core/*`, `flutter/*`, `flutter_bloc`, `go_router`, `validators`. Forbidden: `*Model`, `*DataSource`, `*RepositoryImpl`, `FirebaseFirestore`, `cloud_firestore`.
+4. **Cloud & Firestore Scope:** `FirebaseFirestore` is only accessed inside `core/firebase/` and `features/*/data/` (never in `domain/` or `presentation/`).
+5. **Modern BLoC Rules:**
    - Use ONLY `on<Event>((event, emit) async { ... })`. Never override deprecated `mapEventToState`.
    - Never call `emit()` inside a stream `.listen(...)` callback; dispatch an internal event instead.
    - Split every BLoC into 3 files connected with `part` and `part of`.
-5. **Strings, Theme & Layout (`ENF1`, `ENF2`, `ENF3`):**
+6. **Strings, Theme & Layout (`ENF1`, `ENF2`, `ENF3`):**
    - Zero hardcoded French UI strings or validation messages in widgets/BLoCs: centralize all strings as `const String` (`SCREAMING_SNAKE_CASE`) in `lib/core/strings/failures.dart` and `lib/core/strings/messages.dart`.
    - Zero hardcoded hex colors in widgets: use `Theme.of(context).colorScheme` seeded from `ColorManager.seedColorLight = Color(0xFF1A6B5A)` (Deep Teal).
    - Use `8 / 16 / 24 dp` spacing, `Montserrat` font, minimum `48x48 dp` touch targets, and `SingleChildScrollView` / `ListView.builder` so portrait mode never overflows.

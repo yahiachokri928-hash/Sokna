@@ -1,0 +1,25 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "sokna-cloud-app",
+          "appId": "1:14223692440:android:89db263bb61e8dd33136ed",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "sokna-cloud-app",
+          "configurations": {
+            "android": "1:14223692440:android:89db263bb61e8dd33136ed",
+            "web": "1:14223692440:web:68de782968dcac733136ed"
+          }
+        }
+      }
+    }
+  }
+}
