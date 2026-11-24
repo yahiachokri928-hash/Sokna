@@ -14,6 +14,7 @@ class ListingModel extends ListingEntity {
     required super.isFurnished,
     required super.hasParking,
     required super.imagePath,
+    super.imageUrls = const [],
     required super.rating,
     required super.reviewCount,
     required super.ownerName,
@@ -25,6 +26,13 @@ class ListingModel extends ListingEntity {
   });
 
   factory ListingModel.fromJson(Map<String, dynamic> json) {
+    final parsedImageUrls = (json['imageUrls'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        ((json['imagePath'] as String?)?.isNotEmpty == true
+            ? [json['imagePath'] as String]
+            : const <String>[]);
+
     return ListingModel(
       id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
@@ -36,7 +44,9 @@ class ListingModel extends ListingEntity {
       surface: (json['surface'] as num?)?.toDouble() ?? 0.0,
       isFurnished: json['isFurnished'] as bool? ?? false,
       hasParking: json['hasParking'] as bool? ?? false,
-      imagePath: json['imagePath'] as String? ?? '',
+      imagePath: json['imagePath'] as String? ??
+          (parsedImageUrls.isNotEmpty ? parsedImageUrls.first : ''),
+      imageUrls: parsedImageUrls,
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
       reviewCount: (json['reviewCount'] as num?)?.toInt() ?? 0,
       ownerName: json['ownerName'] as String? ?? '',
@@ -60,7 +70,10 @@ class ListingModel extends ListingEntity {
       'surface': surface,
       'isFurnished': isFurnished,
       'hasParking': hasParking,
-      'imagePath': imagePath,
+      'imagePath': imagePath.isNotEmpty
+          ? imagePath
+          : (imageUrls.isNotEmpty ? imageUrls.first : ''),
+      'imageUrls': imageUrls,
       'rating': rating,
       'reviewCount': reviewCount,
       'ownerName': ownerName,
@@ -85,6 +98,7 @@ class ListingModel extends ListingEntity {
       isFurnished: entity.isFurnished,
       hasParking: entity.hasParking,
       imagePath: entity.imagePath,
+      imageUrls: entity.imageUrls,
       rating: entity.rating,
       reviewCount: entity.reviewCount,
       ownerName: entity.ownerName,
@@ -98,6 +112,13 @@ class ListingModel extends ListingEntity {
 
   factory ListingModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
+    final parsedImageUrls = (data['imageUrls'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        ((data['imagePath'] as String?)?.isNotEmpty == true
+            ? [data['imagePath'] as String]
+            : const <String>[]);
+
     return ListingModel(
       id: (data['id'] as String?) ?? doc.id,
       title: (data['title'] as String?) ?? '',
@@ -109,7 +130,9 @@ class ListingModel extends ListingEntity {
       surface: (data['surface'] as num?)?.toDouble() ?? 0.0,
       isFurnished: (data['isFurnished'] as bool?) ?? false,
       hasParking: (data['hasParking'] as bool?) ?? false,
-      imagePath: (data['imagePath'] as String?) ?? '',
+      imagePath: (data['imagePath'] as String?) ??
+          (parsedImageUrls.isNotEmpty ? parsedImageUrls.first : ''),
+      imageUrls: parsedImageUrls,
       rating: (data['rating'] as num?)?.toDouble() ?? 0.0,
       reviewCount: (data['reviewCount'] as num?)?.toInt() ?? 0,
       ownerName: (data['ownerName'] as String?) ?? '',
@@ -133,7 +156,10 @@ class ListingModel extends ListingEntity {
       'surface': surface,
       'isFurnished': isFurnished,
       'hasParking': hasParking,
-      'imagePath': imagePath,
+      'imagePath': imagePath.isNotEmpty
+          ? imagePath
+          : (imageUrls.isNotEmpty ? imageUrls.first : ''),
+      'imageUrls': imageUrls,
       'rating': rating,
       'reviewCount': reviewCount,
       'ownerName': ownerName,

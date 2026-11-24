@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/strings/messages.dart';
+import '../../../../core/utils/image_encoding_helper.dart';
+import '../../../../core/widgets/smart_network_image.dart';
 import '../../domain/entities/listing_entity.dart';
 
 class PostListingForm extends StatefulWidget {
@@ -26,6 +29,9 @@ class _PostListingFormState extends State<PostListingForm> {
   final _imageController = TextEditingController();
   final _ownerController = TextEditingController();
   final _descriptionController = TextEditingController();
+
+  final ImagePicker _imagePicker = ImagePicker();
+  final List<String> _selectedImageUris = [];
 
   String _selectedPropertyType = CATEGORY_APPARTEMENT;
   double _rooms = 2;
@@ -68,6 +74,100 @@ class _PostListingFormState extends State<PostListingForm> {
     }
   }
 
+  Future<void> _pickFromGallery() async {
+    if (_selectedImageUris.length >= 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(POST_PHOTO_MAX_LIMIT)),
+      );
+      return;
+    }
+
+    try {
+      final List<XFile> pickedFiles = await _imagePicker.pickMultiImage(
+        maxWidth: 800,
+        maxHeight: 600,
+        imageQuality: 65,
+      );
+
+      if (pickedFiles.isEmpty) return;
+
+      bool hadOversized = false;
+      for (final file in pickedFiles) {
+        if (_selectedImageUris.length >= 4) break;
+        final dataUri = await ImageEncodingHelper.xFileToDataUri(file);
+        if (dataUri != null) {
+          _selectedImageUris.add(dataUri);
+        } else {
+          hadOversized = true;
+        }
+      }
+
+      if (mounted) {
+        setState(() {});
+        if (hadOversized) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text(POST_PHOTO_SIZE_EXCEEDED)),
+          );
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(POST_PHOTO_ENCODING_ERROR)),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickFromCamera() async {
+    if (_selectedImageUris.length >= 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(POST_PHOTO_MAX_LIMIT)),
+      );
+      return;
+    }
+
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 800,
+        maxHeight: 600,
+        imageQuality: 65,
+      );
+
+      if (pickedFile == null) return;
+
+      final dataUri = await ImageEncodingHelper.xFileToDataUri(pickedFile);
+      if (dataUri != null) {
+        if (mounted) {
+          setState(() {
+            _selectedImageUris.add(dataUri);
+          });
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text(POST_PHOTO_SIZE_EXCEEDED)),
+          );
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(POST_PHOTO_ENCODING_ERROR)),
+        );
+      }
+    }
+  }
+
+  void _removePhoto(int index) {
+    if (index >= 0 && index < _selectedImageUris.length) {
+      setState(() {
+        _selectedImageUris.removeAt(index);
+      });
+    }
+  }
+
   void _submit() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -83,6 +183,17 @@ class _PostListingFormState extends State<PostListingForm> {
     final String dateString =
         "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
 
+    final List<String> effectiveImages = List<String>.from(_selectedImageUris);
+    final String urlInput = _imageController.text.trim();
+    if (effectiveImages.isEmpty && urlInput.isNotEmpty) {
+      effectiveImages.add(urlInput);
+    }
+    if (effectiveImages.isEmpty) {
+      effectiveImages.add(
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
+      );
+    }
+
     final newListing = ListingEntity(
       id: "sokna_${DateTime.now().millisecondsSinceEpoch}",
       title: _titleController.text.trim(),
@@ -94,9 +205,8 @@ class _PostListingFormState extends State<PostListingForm> {
       surface: double.parse(_surfaceController.text.trim()),
       isFurnished: _isFurnished,
       hasParking: _hasParking,
-      imagePath: _imageController.text.trim().isNotEmpty
-          ? _imageController.text.trim()
-          : "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
+      imagePath: effectiveImages.first,
+      imageUrls: effectiveImages,
       rating: 5.0,
       reviewCount: 1,
       ownerName: _ownerController.text.trim(),
@@ -352,11 +462,152 @@ class _PostListingFormState extends State<PostListingForm> {
             ),
             const SizedBox(height: 16.0),
 
-            TextFormField(
-              controller: _imageController,
-              decoration: const InputDecoration(
-                labelText: POST_FIELD_IMAGE,
-                prefixIcon: Icon(Icons.image_outlined),
+            // Section Photos du bien (jusqu'à 4 photos Base64 Firestore)
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(16.0),
+                border: Border.all(
+                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.add_a_photo_rounded,
+                        size: 20.0,
+                        color: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8.0),
+                      Expanded(
+                        child: Text(
+                          POST_PHOTOS_SECTION_TITLE,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: Text(
+                          '${_selectedImageUris.length} / 4',
+                          style: TextStyle(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12.0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6.0),
+                  Text(
+                    POST_PHOTOS_SECTION_SUBTITLE,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 12.0),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _selectedImageUris.length >= 4 ? null : _pickFromGallery,
+                          icon: const Icon(Icons.photo_library_rounded),
+                          label: const Text(POST_PHOTO_GALLERY_BTN),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(44.0),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12.0),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _selectedImageUris.length >= 4 ? null : _pickFromCamera,
+                          icon: const Icon(Icons.camera_alt_rounded),
+                          label: const Text(POST_PHOTO_CAMERA_BTN),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(44.0),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_selectedImageUris.isNotEmpty) ...[
+                    const SizedBox(height: 14.0),
+                    SizedBox(
+                      height: 84.0,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _selectedImageUris.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 10.0),
+                        itemBuilder: (context, index) {
+                          return Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10.0),
+                                child: Container(
+                                  width: 84.0,
+                                  height: 84.0,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: theme.colorScheme.outlineVariant,
+                                    ),
+                                  ),
+                                  child: SmartNetworkImage(
+                                    imageUrl: _selectedImageUris[index],
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: -6.0,
+                                right: -6.0,
+                                child: Material(
+                                  color: Colors.transparent,
+                                  shape: const CircleBorder(),
+                                  child: InkWell(
+                                    onTap: () => _removePhoto(index),
+                                    customBorder: const CircleBorder(),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4.0),
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.error,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.close_rounded,
+                                        size: 14.0,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 12.0),
+                  TextFormField(
+                    controller: _imageController,
+                    decoration: const InputDecoration(
+                      labelText: POST_FIELD_IMAGE,
+                      prefixIcon: Icon(Icons.link_rounded),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16.0),

@@ -12,6 +12,7 @@ class ListingEntity extends Equatable {
   final bool isFurnished;
   final bool hasParking;
   final String imagePath;
+  final List<String> imageUrls;
   final double rating;
   final int reviewCount;
   final String ownerName;
@@ -33,6 +34,7 @@ class ListingEntity extends Equatable {
     required this.isFurnished,
     required this.hasParking,
     required this.imagePath,
+    this.imageUrls = const [],
     required this.rating,
     required this.reviewCount,
     required this.ownerName,
@@ -42,6 +44,10 @@ class ListingEntity extends Equatable {
     this.ownerPhone,
     this.ownerAvatarUrl,
   });
+
+  /// Returns the available images as a non-empty list, falling back to [imagePath] if [imageUrls] is empty.
+  List<String> get effectiveImageUrls =>
+      imageUrls.isNotEmpty ? imageUrls : (imagePath.isNotEmpty ? [imagePath] : const []);
 
   @override
   List<Object?> get props => [
@@ -56,6 +62,7 @@ class ListingEntity extends Equatable {
         isFurnished,
         hasParking,
         imagePath,
+        imageUrls,
         rating,
         reviewCount,
         ownerName,

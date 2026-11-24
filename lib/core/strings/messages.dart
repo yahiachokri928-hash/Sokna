@@ -3,6 +3,7 @@
 // Centralized UI and validation messages in SCREAMING_SNAKE_CASE (ENF1, ENF2)
 
 const String APP_TITLE = "Sokna";
+const String APP_ARABIC_NAME = "سكنى";
 const String APP_SUBTITLE = "Location immobilière en Tunisie";
 
 // Navigation bar items
@@ -13,6 +14,8 @@ const String NAV_PROFILE = "Profil";
 const String NAV_POST = "Publier";
 
 // Home screen
+const String HOME_GUEST_GREETING = "Bienvenue sur Sokna 👋";
+const String HOME_USER_GREETING_PREFIX = "Bonjour, ";
 const String HOME_USER_GREETING = "Bonjour, Yahia 👋";
 const String HOME_GREETING_TITLE = "Trouvez votre futur logement";
 const String HOME_GREETING_SUBTITLE = "Des centaines d'annonces vérifiées en Tunisie";
@@ -74,7 +77,16 @@ const String POST_FIELD_TYPE = "Type de logement";
 const String POST_FIELD_PRICE = "Loyer mensuel (TND)";
 const String POST_FIELD_ROOMS = "Nombre de pièces (1 à 6)";
 const String POST_FIELD_SURFACE = "Surface habitable (m²)";
-const String POST_FIELD_IMAGE = "URL de l'image";
+const String POST_FIELD_IMAGE = "Ou URL directe d'une image";
+const String POST_PHOTOS_SECTION_TITLE = "Photos du bien (4 max)";
+const String POST_PHOTOS_SECTION_SUBTITLE =
+    "Ajoutez jusqu'à 4 photos depuis votre galerie ou caméra";
+const String POST_PHOTO_GALLERY_BTN = "Galerie";
+const String POST_PHOTO_CAMERA_BTN = "Caméra";
+const String POST_PHOTO_MAX_LIMIT = "Limite de 4 photos atteinte";
+const String POST_PHOTO_SIZE_EXCEEDED =
+    "Photo trop volumineuse (max 180 Ko) et ignorée";
+const String POST_PHOTO_ENCODING_ERROR = "Erreur lors du traitement de l'image";
 const String POST_FIELD_OWNER = "Nom et prénom du bailleur";
 const String POST_FIELD_DATE = "Date de disponibilité";
 const String POST_FIELD_DESCRIPTION = "Description détaillée du logement";
@@ -135,6 +147,13 @@ const String AUTH_EDIT_PROFILE_BUTTON = "Modifier le profil";
 const String AUTH_EDIT_PROFILE_TITLE = "Modifier mon profil";
 const String AUTH_SAVE_PROFILE_BUTTON = "Enregistrer les modifications";
 const String AUTH_PROFILE_UPDATE_SUCCESS = "Profil mis à jour avec succès !";
+const String PROFILE_AVATAR_SHEET_TITLE = "Photo de profil";
+const String PROFILE_AVATAR_TAKE_PHOTO = "Prendre une photo";
+const String PROFILE_AVATAR_CHOOSE_GALLERY = "Choisir depuis la galerie";
+const String PROFILE_AVATAR_UPDATE_SUCCESS =
+    "Photo de profil mise à jour avec succès !";
+const String PROFILE_AVATAR_UPDATING =
+    "Mise à jour de la photo de profil...";
 const String AUTH_FIELD_PHONE_HINT = "+216 XX XXX XXX";
 const String AUTH_NO_PHONE = "Non renseigné";
 const String AUTH_MEMBER_SINCE = "Membre depuis";

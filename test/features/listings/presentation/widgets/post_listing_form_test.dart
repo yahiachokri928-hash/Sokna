@@ -63,4 +63,15 @@ void main() {
     expect(submitted, isFalse);
     expect(find.text(VALIDATION_TITLE_MIN_LENGTH), findsOneWidget);
   });
+
+  testWidgets('Renders multi-photo section with gallery and camera buttons', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      buildTestableWidget((_) {}),
+    );
+
+    expect(find.text(POST_PHOTOS_SECTION_TITLE), findsOneWidget);
+    expect(find.text(POST_PHOTO_GALLERY_BTN), findsOneWidget);
+    expect(find.text(POST_PHOTO_CAMERA_BTN), findsOneWidget);
+    expect(find.text('0 / 4'), findsOneWidget);
+  });
 }

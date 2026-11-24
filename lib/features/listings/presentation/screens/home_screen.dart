@@ -6,6 +6,8 @@ import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
 import '../../../../core/widgets/loading_widget.dart';
+import '../../../../core/widgets/sokna_logo.dart';
+import '../../../auth/presentation/blocs/auth/auth_bloc.dart';
 import '../../../favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import '../blocs/listings/listings_bloc.dart';
 import '../widgets/category_filter_bar.dart';
@@ -22,7 +24,7 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(APP_TITLE),
+        title: const SoknaLogo(isCompact: true),
         actions: const [
           ToolbarActionThemeWidget(),
           SizedBox(width: 8.0),
@@ -53,12 +55,70 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      HOME_USER_GREETING,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, authState) {
+                        if (authState is AuthenticatedState) {
+                          final user = authState.user;
+                          final displayName = (user.name != null && user.name!.trim().isNotEmpty)
+                              ? user.name!.trim()
+                              : (user.email != null && user.email!.isNotEmpty
+                                  ? user.email!.split('@').first
+                                  : 'Utilisateur');
+                          final role = user.role.isNotEmpty ? user.role : AUTH_ROLE_TENANT;
+
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  '$HOME_USER_GREETING_PREFIX$displayName 👋',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8.0),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.primaryContainer,
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      role == AUTH_ROLE_OWNER || role == AUTH_ROLE_LANDLORD
+                                          ? Icons.home_work_rounded
+                                          : Icons.person_rounded,
+                                      size: 14.0,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 4.0),
+                                    Text(
+                                      role,
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: theme.colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+
+                        return Text(
+                          HOME_GUEST_GREETING,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 4.0),
                     Text(

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
-import '../../../../core/utils/snack_bar_message.dart';
+import '../../../../core/widgets/guest_auth_prompt.dart';
+import '../../../../core/widgets/smart_network_image.dart';
 import '../../../auth/presentation/blocs/auth/auth_bloc.dart';
 import '../../domain/entities/listing_entity.dart';
 import 'amenity_badge.dart';
@@ -32,11 +31,7 @@ class ListingCard extends StatelessWidget {
     }
 
     if (authBloc != null && authBloc.state is! AuthenticatedState) {
-      SnackBarMessage.showAuthRequiredSnackBar(
-        context: context,
-        message: FAVORITES_GUEST_SNACKBAR_MESSAGE,
-        onAction: () => context.push(AppRoutes.login),
-      );
+      showGuestAuthSnackBar(context, FAVORITES_GUEST_SNACKBAR_MESSAGE);
       return;
     }
 
@@ -64,37 +59,11 @@ class ListingCard extends StatelessWidget {
                 SizedBox(
                   height: 180.0,
                   width: double.infinity,
-                  child: Image.network(
-                    listing.imagePath,
+                  child: SmartNetworkImage(
+                    imageUrl: listing.effectiveImageUrls.isNotEmpty
+                        ? listing.effectiveImageUrls.first
+                        : listing.imagePath,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: theme.colorScheme.primaryContainer,
-                        child: Center(
-                          child: Icon(
-                            Icons.home_work_rounded,
-                            size: 48.0,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                      );
-                    },
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        color: theme.colorScheme.surfaceContainerHighest,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.0,
-                            color: theme.colorScheme.primary,
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        ),
-                      );
-                    },
                   ),
                 ),
                 // Verified Badge (top-left)

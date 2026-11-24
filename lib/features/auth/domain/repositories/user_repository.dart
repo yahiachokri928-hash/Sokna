@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dartz/dartz.dart';
 import '../../../../core/failures/failures.dart';
 import '../entities/user_entity.dart';
@@ -8,4 +9,5 @@ abstract class UserRepository {
   Future<Either<Failure, Unit>> signIn(UserEntity user);
   Future<Either<Failure, Unit>> signOut();
   Future<Either<Failure, UserEntity?>> getCurrentUserProfile();
+  Future<Either<Failure, UserEntity>> updateAvatar(File imageFile);
 }

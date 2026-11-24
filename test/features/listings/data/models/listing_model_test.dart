@@ -15,6 +15,10 @@ void main() {
     isFurnished: true,
     hasParking: true,
     imagePath: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
+    imageUrls: [
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688',
+    ],
     rating: 4.9,
     reviewCount: 18,
     ownerName: 'Karim Ben Amor',
@@ -37,6 +41,10 @@ void main() {
     'isFurnished': true,
     'hasParking': true,
     'imagePath': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
+    'imageUrls': [
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688',
+    ],
     'rating': 4.9,
     'reviewCount': 18,
     'ownerName': 'Karim Ben Amor',
@@ -100,6 +108,10 @@ void main() {
         isFurnished: true,
         hasParking: true,
         imagePath: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
+        imageUrls: [
+          'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
+          'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688',
+        ],
         rating: 4.9,
         reviewCount: 18,
         ownerName: 'Karim Ben Amor',
@@ -120,10 +132,68 @@ void main() {
     test('should contain valid firestore map representation', () {
       final map = testListingModel.toFirestore();
       expect(map['id'], 'sokna_001');
+      expect(map['imageUrls'], testListingModel.imageUrls);
+      expect(map['imagePath'], testListingModel.imagePath);
       expect(map['ownerId'], 'owner_123');
       expect(map['ownerPhone'], '+216 20 123 456');
       expect(map['ownerAvatarUrl'], 'https://example.com/avatar.jpg');
       expect(map.containsKey('createdAt'), isTrue);
+    });
+  });
+
+  group('effectiveImageUrls and backward compatibility', () {
+    test('should return imageUrls when present', () {
+      expect(testListingModel.effectiveImageUrls, [
+        'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267',
+        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688',
+      ]);
+    });
+
+    test('should fallback to [imagePath] when imageUrls is empty', () {
+      const singlePhotoModel = ListingModel(
+        id: 'sokna_single',
+        title: 'Studio',
+        city: 'Tunis',
+        address: 'Centre Ville',
+        propertyType: 'Studio',
+        price: 800,
+        rooms: 1,
+        surface: 45.0,
+        isFurnished: false,
+        hasParking: false,
+        imagePath: 'https://example.com/single.jpg',
+        imageUrls: [],
+        rating: 4.5,
+        reviewCount: 3,
+        ownerName: 'Ali',
+        availableFrom: '2026-11-01',
+        description: 'Cozy studio',
+      );
+
+      expect(singlePhotoModel.effectiveImageUrls, ['https://example.com/single.jpg']);
+    });
+
+    test('fromJson should populate imageUrls from imagePath when imageUrls is missing', () {
+      final legacyJson = {
+        'id': 'legacy_01',
+        'title': 'Ancien listing',
+        'city': 'Sousse',
+        'address': 'Kantaoui',
+        'propertyType': 'Appartement',
+        'price': 1200,
+        'rooms': 2,
+        'surface:': 80.0,
+        'imagePath': 'https://example.com/legacy.jpg',
+        'rating': 4.0,
+        'reviewCount': 2,
+        'ownerName': 'Sonia',
+        'availableFrom': '2026-10-01',
+        'description': 'Bel appartement',
+      };
+
+      final parsed = ListingModel.fromJson(legacyJson);
+      expect(parsed.imageUrls, ['https://example.com/legacy.jpg']);
+      expect(parsed.effectiveImageUrls, ['https://example.com/legacy.jpg']);
     });
   });
 }

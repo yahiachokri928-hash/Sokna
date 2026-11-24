@@ -38,3 +38,12 @@ class UpdateUserProfileEvent extends AuthEvent {
   @override
   List<Object?> get props => [updatedUser];
 }
+
+class UpdateUserAvatarEvent extends AuthEvent {
+  final File imageFile;
+
+  const UpdateUserAvatarEvent(this.imageFile);
+
+  @override
+  List<Object?> get props => [imageFile];
+}

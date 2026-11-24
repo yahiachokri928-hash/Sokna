@@ -58,6 +58,7 @@ class PostListingScreen extends StatelessWidget {
                   isFurnished: newListing.isFurnished,
                   hasParking: newListing.hasParking,
                   imagePath: newListing.imagePath,
+                  imageUrls: newListing.imageUrls,
                   rating: newListing.rating,
                   reviewCount: newListing.reviewCount,
                   ownerName: (authUser.name != null && authUser.name!.isNotEmpty)

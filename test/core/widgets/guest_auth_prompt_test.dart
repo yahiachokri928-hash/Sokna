@@ -46,4 +46,25 @@ void main() {
     expect(find.text(AUTH_LOGIN_BUTTON), findsOneWidget);
     expect(find.text(AUTH_CREATE_ACCOUNT_BUTTON), findsOneWidget);
   });
+
+  testWidgets('showGuestAuthSnackBar displays floating snackbar with Se connecter action', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () => showGuestAuthSnackBar(context, FAVORITES_GUEST_SNACKBAR_MESSAGE),
+              child: const Text('Trigger'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Trigger'));
+    await tester.pump();
+
+    expect(find.text(FAVORITES_GUEST_SNACKBAR_MESSAGE), findsOneWidget);
+    expect(find.text(ACTION_LOGIN), findsOneWidget);
+  });
 }

@@ -1,8 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../router/app_router.dart';
 import '../router/routes.dart';
 import '../strings/messages.dart';
+
+/// Centralized helper to show an auto-dismissing guest authentication SnackBar.
+/// Uses [AppRouter.router.push] directly so navigation never relies on a perishable widget context.
+void showGuestAuthSnackBar(BuildContext context, [String? message]) {
+  ScaffoldMessenger.of(context)
+    ..clearSnackBars()
+    ..showSnackBar(
+      SnackBar(
+        content: Text(
+          message ?? FAVORITES_GUEST_SNACKBAR_MESSAGE,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+          label: ACTION_LOGIN,
+          textColor: Colors.amber.shade300,
+          onPressed: () {
+            AppRouter.router.push(AppRoutes.login);
+          },
+        ),
+      ),
+    );
+}
 
 class GuestAuthPrompt extends StatelessWidget {
   final IconData? icon;

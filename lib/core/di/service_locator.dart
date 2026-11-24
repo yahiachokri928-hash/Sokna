@@ -10,6 +10,7 @@ import '../../features/auth/domain/usecases/get_current_user_profile.dart';
 import '../../features/auth/domain/usecases/register_user.dart';
 import '../../features/auth/domain/usecases/sign_in_user.dart';
 import '../../features/auth/domain/usecases/sign_out_user.dart';
+import '../../features/auth/domain/usecases/update_avatar.dart';
 import '../../features/auth/domain/usecases/update_user.dart';
 import '../../features/auth/presentation/blocs/auth/auth_bloc.dart';
 import '../../features/auth/presentation/blocs/register/register_bloc.dart';
@@ -170,6 +171,7 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton(() => SignInUserUseCase(sl<UserRepository>()));
   sl.registerLazySingleton(() => SignOutUserUseCase(sl<UserRepository>()));
   sl.registerLazySingleton(() => UpdateUserUseCase(sl<UserRepository>()));
+  sl.registerLazySingleton(() => UpdateAvatarUseCase(sl<UserRepository>()));
   sl.registerLazySingleton(
     () => GetCurrentUserProfileUseCase(sl<UserRepository>()),
   );
@@ -181,6 +183,7 @@ Future<void> initServiceLocator() async {
       signOutUserUseCase: sl<SignOutUserUseCase>(),
       getCurrentUserProfileUseCase: sl<GetCurrentUserProfileUseCase>(),
       updateUserUseCase: sl<UpdateUserUseCase>(),
+      updateAvatarUseCase: sl<UpdateAvatarUseCase>(),
       authService: sl<AuthService>(),
     ),
   );
