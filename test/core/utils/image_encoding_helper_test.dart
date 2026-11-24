@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sokna/core/utils/image_encoding_helper.dart';
@@ -53,6 +54,16 @@ void main() {
 
       final result = await ImageEncodingHelper.xFileToDataUri(xFile, maxSize: 250);
       expect(result, isNull);
+    });
+
+    test('getAvatarImageProvider returns MemoryImage for data URI and NetworkImage for URL', () {
+      final sampleBytes = Uint8List.fromList([1, 2, 3]);
+      final dataUri = ImageEncodingHelper.bytesToDataUri(sampleBytes);
+
+      expect(ImageEncodingHelper.getAvatarImageProvider(dataUri), isA<MemoryImage>());
+      expect(ImageEncodingHelper.getAvatarImageProvider('https://example.com/avatar.jpg'), isA<NetworkImage>());
+      expect(ImageEncodingHelper.getAvatarImageProvider(''), isNull);
+      expect(ImageEncodingHelper.getAvatarImageProvider(null), isNull);
     });
   });
 }

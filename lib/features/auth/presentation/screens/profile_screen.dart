@@ -1,9 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/router/routes.dart';
+import '../../../../core/strings/failures.dart';
 import '../../../../core/strings/messages.dart';
+import '../../../../core/utils/image_encoding_helper.dart';
 import '../../../../core/utils/snack_bar_message.dart';
 import '../../../../core/widgets/sokna_logo.dart';
 import '../../../favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
@@ -215,6 +219,94 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _pickAndUploadAvatar(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: source,
+        maxWidth: 320,
+        maxHeight: 320,
+        imageQuality: 70,
+      );
+
+      if (picked == null || !mounted) return;
+
+      context.read<AuthBloc>().add(UpdateUserAvatarEvent(File(picked.path)));
+
+      SnackBarMessage.showSuccessSnackBar(
+        context: context,
+        message: PROFILE_AVATAR_UPDATE_SUCCESS,
+      );
+    } catch (_) {
+      if (mounted) {
+        SnackBarMessage.showErrorSnackBar(
+          context: context,
+          message: PROFILE_UPDATE_FAILURE_MESSAGE,
+        );
+      }
+    }
+  }
+
+  void _showAvatarPickerSheet() {
+    final theme = Theme.of(context);
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40.0,
+                  height: 4.0,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(2.0),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Text(
+                  PROFILE_AVATAR_SHEET_TITLE,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: theme.colorScheme.primaryContainer,
+                    child: Icon(Icons.camera_alt_rounded, color: theme.colorScheme.primary),
+                  ),
+                  title: const Text(PROFILE_AVATAR_TAKE_PHOTO),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _pickAndUploadAvatar(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: theme.colorScheme.primaryContainer,
+                    child: Icon(Icons.photo_library_rounded, color: theme.colorScheme.primary),
+                  ),
+                  title: const Text(PROFILE_AVATAR_CHOOSE_GALLERY),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _pickAndUploadAvatar(ImageSource.gallery);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -369,23 +461,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 40.0,
-                  backgroundColor: theme.colorScheme.primaryContainer,
-                  backgroundImage: (user.profilURL != null && user.profilURL!.isNotEmpty)
-                      ? NetworkImage(user.profilURL!)
-                      : null,
-                  onBackgroundImageError: (_, _) {},
-                  child: (user.profilURL == null || user.profilURL!.isEmpty)
-                      ? Text(
-                          userName.isNotEmpty ? userName.substring(0, 1).toUpperCase() : 'U',
-                          style: TextStyle(
-                            fontSize: 32.0,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.primary,
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 44.0,
+                      backgroundColor: theme.colorScheme.primaryContainer,
+                      backgroundImage: ImageEncodingHelper.getAvatarImageProvider(user.profilURL),
+                      onBackgroundImageError: (_, _) {},
+                      child: (user.profilURL == null || user.profilURL!.isEmpty)
+                          ? Text(
+                              userName.isNotEmpty ? userName.substring(0, 1).toUpperCase() : 'U',
+                              style: TextStyle(
+                                fontSize: 32.0,
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.primary,
+                              ),
+                            )
+                          : null,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Material(
+                        color: theme.colorScheme.primary,
+                        shape: const CircleBorder(),
+                        elevation: 2,
+                        child: InkWell(
+                          onTap: () => _showAvatarPickerSheet(),
+                          customBorder: const CircleBorder(),
+                          child: Padding(
+                            padding: const EdgeInsets.all(7.0),
+                            child: Icon(
+                              Icons.camera_alt_rounded,
+                              size: 18.0,
+                              color: theme.colorScheme.onPrimary,
+                            ),
                           ),
-                        )
-                      : null,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 14.0),
                 Text(

@@ -147,6 +147,13 @@ const String AUTH_EDIT_PROFILE_BUTTON = "Modifier le profil";
 const String AUTH_EDIT_PROFILE_TITLE = "Modifier mon profil";
 const String AUTH_SAVE_PROFILE_BUTTON = "Enregistrer les modifications";
 const String AUTH_PROFILE_UPDATE_SUCCESS = "Profil mis à jour avec succès !";
+const String PROFILE_AVATAR_SHEET_TITLE = "Photo de profil";
+const String PROFILE_AVATAR_TAKE_PHOTO = "Prendre une photo";
+const String PROFILE_AVATAR_CHOOSE_GALLERY = "Choisir depuis la galerie";
+const String PROFILE_AVATAR_UPDATE_SUCCESS =
+    "Photo de profil mise à jour avec succès !";
+const String PROFILE_AVATAR_UPDATING =
+    "Mise à jour de la photo de profil...";
 const String AUTH_FIELD_PHONE_HINT = "+216 XX XXX XXX";
 const String AUTH_NO_PHONE = "Non renseigné";
 const String AUTH_MEMBER_SINCE = "Membre depuis";

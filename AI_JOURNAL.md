@@ -153,6 +153,23 @@ Pour préparer la mise en production et garantir une expérience utilisateur par
    - Suite de tests portée à **36 tests automatisés** réussis avec 0 avertissement `flutter analyze`.
    - Documentation exhaustive et compilation de l'APK Release final.
 
+### Phase 7 — Polissage UI/UX, Médias Spark-Free & Upload d'Avatars (Phases U1 → U3)
+
+1. **Phase U1 (Salutation Dynamique, Logo Maison & SnackBar Invité) :**
+   - Suppression du nom en dur "Yahia" sur `HomeScreen` au profit d'un `BlocBuilder<AuthBloc>` affichant dynamiquement `Bonjour, <Nom>` avec badge de rôle, ou `Bienvenue sur Sokna` en mode invité.
+   - Création du widget de marque unifié `SoknaLogo` avec emblème maison stylisé, bilingue (« Sokna » / « سكنى »).
+   - Helper `showGuestAuthSnackBar` auto-nettoyant avec redirection propre vers `/login`.
+2. **Phase U2 (Galerie Multi-Photos & Stockage Spark-Free dans Firestore) :**
+   - Implémentation de `ImageEncodingHelper` encodant les images (max 800x600, q:65) en Base64 JPEG compact (~180 Ko max par photo) permettant de stocker jusqu'à 4 photos par annonce directement dans le document Firestore, sans dépendance au plan payant Blaze (Firebase Storage).
+   - Création de `SmartNetworkImage` décodant automatiquement les Data URIs en mémoire (`Image.memory`) et les URLs web (`Image.network`), avec fallback placeholder élégant.
+   - Sélection multi-photos dans `PostListingForm` via Galerie et Caméra avec prévisualisation en bande défilante et suppression unitaire.
+   - Carrousel tactile swipeable `PageView.builder` sur `ListingDetailScreen` avec badge compteur (`1 / 4`) et points indicateurs animés.
+3. **Phase U3 (Upload d'Avatar Caméra/Galerie & Enrichissement du Seeder Cloud) :**
+   - Badge d'édition caméra sur l'avatar du profil ouvrant une feuille modale Material 3 avec options **« Prendre une photo »** et **« Choisir depuis la galerie »**.
+   - `UpdateAvatarUseCase` encodant l'image en JPEG compact (320x320, ~20 Ko) et mettant à jour `users/{uid}.profilURL` dans Firestore.
+   - Prise en charge universelle des avatars Base64 et HTTP via `ImageEncodingHelper.getAvatarImageProvider` sur `ProfileScreen` et `ListingDetailScreen`.
+   - Enrichissement des 16 annonces tunisiennes du seeder avec 4 photos chacune (salon, chambre, cuisine, vue/extérieur).
+
 ---
 
 ## 3. Guide de Révision pour la Soutenance Individuelle (Semaine S9)
@@ -190,3 +207,9 @@ Cette section synthétise les réponses types aux questions récurrentes du jury
 
 ### Q8 : Que se passe-t-il quand un utilisateur change de session (connexion / déconnexion) ?
 > **Réponse :** Dans `main.dart`, le widget racine écoute les transitions de `AuthBloc` via `BlocListener<AuthBloc, AuthState>`. Dès qu'un état `AuthenticatedState` ou `UnAuthenticatedState` est émis, un événement `LoadSavedListingsEvent` est immédiatement dépêché à `SavedListingsBloc`. L'interface recharge instantanément la liste des favoris propre au compte connecté (ou du profil invité) sans redémarrage de l'application.
+
+### Q9 : Comment fonctionne le stockage multi-photos et d'avatar sans Firebase Storage (Spark Plan) ?
+> **Réponse :** Le plan gratuit Firebase Spark n'inclut pas de bucket Cloud Storage sans carte bancaire (Blaze). Pour garantir que l'application reste 100% fonctionnelle, autonome et gratuite :
+> 1. Les photos sélectionnées (galerie ou caméra via `image_picker`) sont redimensionnées et compressées via `ImageEncodingHelper` en Data URIs JPEG Base64 (`data:image/jpeg;base64,...`).
+> 2. Une photo d'annonce compressée (800x600, q:65) pèse entre 40 et 80 Ko, et un avatar (320x320, q:70) pèse ~20 Ko. Ainsi, 4 photos d'annonce totalisent ~250 Ko, restant largement en dessous du plafond strict de 1 Mo par document Cloud Firestore.
+> 3. Le widget `SmartNetworkImage` et le helper `getAvatarImageProvider` détectent automatiquement le préfixe `data:image` pour décoder et afficher l'image directement depuis la mémoire (`Image.memory` / `MemoryImage`), tout en supportant les URLs HTTP standards (`NetworkImage`).

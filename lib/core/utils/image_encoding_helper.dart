@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 
 /// Helper utility to process and encode images into compact Base64 JPEG Data URIs
@@ -51,5 +52,20 @@ class ImageEncodingHelper {
     } catch (_) {
       return null;
     }
+  }
+
+  /// Returns an [ImageProvider] supporting both Base64 Data URIs (via [MemoryImage])
+  /// and standard network URLs (via [NetworkImage]). Returns null if [avatarUrl] is null or empty.
+  static ImageProvider? getAvatarImageProvider(String? avatarUrl) {
+    if (avatarUrl == null || avatarUrl.trim().isEmpty) return null;
+    final trimmed = avatarUrl.trim();
+    if (isDataUri(trimmed)) {
+      final bytes = decodeDataUri(trimmed);
+      if (bytes != null && bytes.isNotEmpty) {
+        return MemoryImage(bytes);
+      }
+      return null;
+    }
+    return NetworkImage(trimmed);
   }
 }

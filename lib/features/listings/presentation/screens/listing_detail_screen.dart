@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
+import '../../../../core/utils/image_encoding_helper.dart';
 import '../../../../core/utils/snack_bar_message.dart';
 import '../../../../core/widgets/guest_auth_prompt.dart';
 import '../../../../core/widgets/smart_network_image.dart';
@@ -690,10 +691,9 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                     CircleAvatar(
                                       radius: 26.0,
                                       backgroundColor: theme.colorScheme.primaryContainer,
-                                      backgroundImage: (currentListing.ownerAvatarUrl != null &&
-                                              currentListing.ownerAvatarUrl!.isNotEmpty)
-                                          ? NetworkImage(currentListing.ownerAvatarUrl!)
-                                          : null,
+                                      backgroundImage: ImageEncodingHelper.getAvatarImageProvider(
+                                        currentListing.ownerAvatarUrl,
+                                      ),
                                       child: (currentListing.ownerAvatarUrl == null ||
                                               currentListing.ownerAvatarUrl!.isEmpty)
                                           ? (currentListing.ownerName.isNotEmpty
@@ -857,10 +857,9 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                               CircleAvatar(
                                                 radius: 16.0,
                                                 backgroundColor: theme.colorScheme.primaryContainer,
-                                                backgroundImage: (rev.userAvatarUrl != null &&
-                                                        rev.userAvatarUrl!.isNotEmpty)
-                                                    ? NetworkImage(rev.userAvatarUrl!)
-                                                    : null,
+                                                backgroundImage: ImageEncodingHelper.getAvatarImageProvider(
+                                                  rev.userAvatarUrl,
+                                                ),
                                                 child: (rev.userAvatarUrl == null ||
                                                         rev.userAvatarUrl!.isEmpty)
                                                     ? Text(

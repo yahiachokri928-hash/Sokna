@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/firebase/auth_service.dart';
 import '../../../../core/firebase/firestore_service.dart';
+import '../../domain/entities/user_entity.dart';
 import '../models/user_model.dart';
 
 abstract class UserDataSource {
@@ -10,6 +11,7 @@ abstract class UserDataSource {
   Future<void> updateUserName(String name);
   Future<UserModel?> getCurrentUserProfile();
   Future<void> updateUser(UserModel user);
+  Future<UserEntity> updateUserAvatar(String uid, String avatarDataUrl);
 }
 
 class UserDataSourceImpl implements UserDataSource {
@@ -127,5 +129,31 @@ class UserDataSourceImpl implements UserDataSource {
         SetOptions(merge: true),
       );
     }
+  }
+
+  @override
+  Future<UserEntity> updateUserAvatar(String uid, String avatarDataUrl) async {
+    await firestoreService.usersCollection.doc(uid).set(
+      {'profilURL': avatarDataUrl},
+      SetOptions(merge: true),
+    );
+
+    final currentUser = authService.currentUser;
+    if (currentUser != null && currentUser.uid == uid) {
+      try {
+        await currentUser.updatePhotoURL(avatarDataUrl);
+      } catch (_) {}
+    }
+
+    final doc = await firestoreService.usersCollection.doc(uid).get();
+    if (doc.exists && doc.data() != null) {
+      return UserModel.fromFirestore(doc);
+    }
+
+    if (currentUser != null) {
+      return UserModel.fromFirebaseAuth(currentUser);
+    }
+
+    return UserEntity(uid: uid, profilURL: avatarDataUrl);
   }
 }

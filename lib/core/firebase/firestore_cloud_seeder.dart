@@ -337,6 +337,12 @@ class FirestoreCloudSeeder {
         'hasParking': true,
         'imagePath':
             'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.9,
         'reviewCount': 3,
         'ownerEmail': 'salma.trabelsi@sokna.tn',
@@ -361,6 +367,12 @@ class FirestoreCloudSeeder {
         'hasParking': false,
         'imagePath':
             'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1540518614846-7ede433c4ef7?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.6,
         'reviewCount': 2,
         'ownerEmail': 'mehdi.bouazizi@sokna.tn',
@@ -385,6 +397,12 @@ class FirestoreCloudSeeder {
         'hasParking': true,
         'imagePath':
             'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 5.0,
         'reviewCount': 2,
         'ownerEmail': 'ons.mansouri@sokna.tn',
@@ -409,6 +427,12 @@ class FirestoreCloudSeeder {
         'hasParking': true,
         'imagePath':
             'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.7,
         'reviewCount': 2,
         'ownerEmail': 'mehdi.bouazizi@sokna.tn',
@@ -433,6 +457,12 @@ class FirestoreCloudSeeder {
         'hasParking': false,
         'imagePath':
             'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.9,
         'reviewCount': 3,
         'ownerEmail': 'amine.benali@sokna.tn',
@@ -457,6 +487,12 @@ class FirestoreCloudSeeder {
         'hasParking': true,
         'imagePath':
             'https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.6,
         'reviewCount': 2,
         'ownerEmail': 'youssef.gharbi@sokna.tn',
@@ -481,6 +517,12 @@ class FirestoreCloudSeeder {
         'hasParking': false,
         'imagePath':
             'https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1540518614846-7ede433c4ef7?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.4,
         'reviewCount': 2,
         'ownerEmail': 'nourhene.khelifi@sokna.tn',
@@ -505,6 +547,12 @@ class FirestoreCloudSeeder {
         'hasParking': true,
         'imagePath':
             'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 5.0,
         'reviewCount': 2,
         'ownerEmail': 'salma.trabelsi@sokna.tn',
@@ -529,6 +577,12 @@ class FirestoreCloudSeeder {
         'hasParking': true,
         'imagePath':
             'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.7,
         'reviewCount': 2,
         'ownerEmail': 'youssef.gharbi@sokna.tn',
@@ -553,6 +607,12 @@ class FirestoreCloudSeeder {
         'hasParking': true,
         'imagePath':
             'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.6,
         'reviewCount': 2,
         'ownerEmail': 'ons.mansouri@sokna.tn',
@@ -577,6 +637,12 @@ class FirestoreCloudSeeder {
         'hasParking': true,
         'imagePath':
             'https://images.unsplash.com/photo-1598228723793-52759bba239c?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1598228723793-52759bba239c?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.8,
         'reviewCount': 3,
         'ownerEmail': 'amine.benali@sokna.tn',
@@ -601,6 +667,12 @@ class FirestoreCloudSeeder {
         'hasParking': false,
         'imagePath':
             'https://images.unsplash.com/photo-1536376072261-38c75010e6c9?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1536376072261-38c75010e6c9?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1540518614846-7ede433c4ef7?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.7,
         'reviewCount': 2,
         'ownerEmail': 'salma.trabelsi@sokna.tn',
@@ -625,6 +697,12 @@ class FirestoreCloudSeeder {
         'hasParking': true,
         'imagePath':
             'https://images.unsplash.com/photo-1502005229762-ee1b2b8ab32f?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1502005229762-ee1b2b8ab32f?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.9,
         'reviewCount': 2,
         'ownerEmail': 'mehdi.bouazizi@sokna.tn',
@@ -649,6 +727,12 @@ class FirestoreCloudSeeder {
         'hasParking': true,
         'imagePath':
             'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.7,
         'reviewCount': 2,
         'ownerEmail': 'amine.benali@sokna.tn',
@@ -673,6 +757,12 @@ class FirestoreCloudSeeder {
         'hasParking': false,
         'imagePath':
             'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1540518614846-7ede433c4ef7?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.4,
         'reviewCount': 2,
         'ownerEmail': 'ons.mansouri@sokna.tn',
@@ -697,6 +787,12 @@ class FirestoreCloudSeeder {
         'hasParking': true,
         'imagePath':
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1200&q=80',
+        'imageUrls': [
+          'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80',
+        ],
         'rating': 4.9,
         'reviewCount': 2,
         'ownerEmail': 'nourhene.khelifi@sokna.tn',

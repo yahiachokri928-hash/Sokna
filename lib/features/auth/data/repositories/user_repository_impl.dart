@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -5,6 +6,7 @@ import '../../../../core/failures/auth_failures.dart';
 import '../../../../core/failures/failures.dart';
 import '../../../../core/network/network_info.dart';
 import '../../../../core/strings/failures.dart';
+import '../../../../core/utils/image_encoding_helper.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasources/user_data_source.dart';
@@ -95,6 +97,35 @@ class UserRepositoryImpl implements UserRepository {
     try {
       final profile = await remoteDataSource.getCurrentUserProfile();
       return Right(profile);
+    } on FirebaseException catch (e) {
+      return Left(ServerFailure(e.message ?? SERVER_FAILURE_MESSAGE));
+    } catch (_) {
+      return const Left(UnexpectedFailure(UNEXPECTED_FAILURE_MESSAGE));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> updateAvatar(File imageFile) async {
+    if (!await networkInfo.isConnected) {
+      return const Left(OfflineFailure(OFFLINE_FAILURE_MESSAGE));
+    }
+
+    try {
+      final currentUser = await remoteDataSource.getCurrentUserProfile();
+      if (currentUser == null || currentUser.uid == null || currentUser.uid!.isEmpty) {
+        return const Left(AuthUserNotFoundFailure(AUTH_USER_NOT_FOUND_MESSAGE));
+      }
+
+      final bytes = await imageFile.readAsBytes();
+      final avatarDataUrl = ImageEncodingHelper.bytesToDataUri(bytes);
+
+      final updatedUser = await remoteDataSource.updateUserAvatar(
+        currentUser.uid!,
+        avatarDataUrl,
+      );
+      return Right(updatedUser);
+    } on FirebaseAuthException catch (e) {
+      return Left(_mapFirebaseAuthException(e));
     } on FirebaseException catch (e) {
       return Left(ServerFailure(e.message ?? SERVER_FAILURE_MESSAGE));
     } catch (_) {
