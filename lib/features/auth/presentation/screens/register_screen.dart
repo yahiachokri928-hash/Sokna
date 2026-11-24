@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
+import '../../../../core/widgets/sokna_logo.dart';
 import '../blocs/register/register_bloc.dart';
 import '../widgets/register_form.dart';
 
@@ -45,20 +46,7 @@ class RegisterScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 16.0),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(20.0),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.person_add_rounded,
-                      size: 48.0,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                ),
+                const Center(child: SoknaLogo()),
                 const SizedBox(height: 24.0),
                 Text(
                   AUTH_REGISTER_TITLE,

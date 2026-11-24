@@ -3,6 +3,7 @@
 // Centralized UI and validation messages in SCREAMING_SNAKE_CASE (ENF1, ENF2)
 
 const String APP_TITLE = "Sokna";
+const String APP_ARABIC_NAME = "سكنى";
 const String APP_SUBTITLE = "Location immobilière en Tunisie";
 
 // Navigation bar items
@@ -13,6 +14,8 @@ const String NAV_PROFILE = "Profil";
 const String NAV_POST = "Publier";
 
 // Home screen
+const String HOME_GUEST_GREETING = "Bienvenue sur Sokna 👋";
+const String HOME_USER_GREETING_PREFIX = "Bonjour, ";
 const String HOME_USER_GREETING = "Bonjour, Yahia 👋";
 const String HOME_GREETING_TITLE = "Trouvez votre futur logement";
 const String HOME_GREETING_SUBTITLE = "Des centaines d'annonces vérifiées en Tunisie";

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
+import '../../../../core/widgets/sokna_logo.dart';
 import '../../../favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import '../../../listings/domain/entities/listing_entity.dart';
 import '../../../listings/presentation/blocs/listings/listings_bloc.dart';
@@ -249,16 +250,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 36.0,
-                  backgroundColor: theme.colorScheme.primaryContainer,
-                  child: Icon(
-                    Icons.account_circle_outlined,
-                    size: 44.0,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 14.0),
+                const SoknaLogo(),
+                const SizedBox(height: 16.0),
                 Text(
                   PROFILE_GUEST_TITLE,
                   style: theme.textTheme.titleLarge?.copyWith(

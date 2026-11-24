@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
-import '../../../../core/utils/snack_bar_message.dart';
+import '../../../../core/widgets/guest_auth_prompt.dart';
 import '../../../auth/presentation/blocs/auth/auth_bloc.dart';
 import '../../domain/entities/listing_entity.dart';
 import 'amenity_badge.dart';
@@ -32,11 +30,7 @@ class ListingCard extends StatelessWidget {
     }
 
     if (authBloc != null && authBloc.state is! AuthenticatedState) {
-      SnackBarMessage.showAuthRequiredSnackBar(
-        context: context,
-        message: FAVORITES_GUEST_SNACKBAR_MESSAGE,
-        onAction: () => context.push(AppRoutes.login),
-      );
+      showGuestAuthSnackBar(context, FAVORITES_GUEST_SNACKBAR_MESSAGE);
       return;
     }
 

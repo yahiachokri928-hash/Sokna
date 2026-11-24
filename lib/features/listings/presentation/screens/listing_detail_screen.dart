@@ -331,11 +331,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                   onPressed: () {
                                     final authState = context.read<AuthBloc>().state;
                                     if (authState is! AuthenticatedState) {
-                                      SnackBarMessage.showAuthRequiredSnackBar(
-                                        context: context,
-                                        message: FAVORITES_GUEST_SNACKBAR_MESSAGE,
-                                        onAction: () => context.push(AppRoutes.login),
-                                      );
+                                      showGuestAuthSnackBar(context, FAVORITES_GUEST_SNACKBAR_MESSAGE);
                                       return;
                                     }
 
