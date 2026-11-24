@@ -77,7 +77,16 @@ const String POST_FIELD_TYPE = "Type de logement";
 const String POST_FIELD_PRICE = "Loyer mensuel (TND)";
 const String POST_FIELD_ROOMS = "Nombre de pièces (1 à 6)";
 const String POST_FIELD_SURFACE = "Surface habitable (m²)";
-const String POST_FIELD_IMAGE = "URL de l'image";
+const String POST_FIELD_IMAGE = "Ou URL directe d'une image";
+const String POST_PHOTOS_SECTION_TITLE = "Photos du bien (4 max)";
+const String POST_PHOTOS_SECTION_SUBTITLE =
+    "Ajoutez jusqu'à 4 photos depuis votre galerie ou caméra";
+const String POST_PHOTO_GALLERY_BTN = "Galerie";
+const String POST_PHOTO_CAMERA_BTN = "Caméra";
+const String POST_PHOTO_MAX_LIMIT = "Limite de 4 photos atteinte";
+const String POST_PHOTO_SIZE_EXCEEDED =
+    "Photo trop volumineuse (max 180 Ko) et ignorée";
+const String POST_PHOTO_ENCODING_ERROR = "Erreur lors du traitement de l'image";
 const String POST_FIELD_OWNER = "Nom et prénom du bailleur";
 const String POST_FIELD_DATE = "Date de disponibilité";
 const String POST_FIELD_DESCRIPTION = "Description détaillée du logement";

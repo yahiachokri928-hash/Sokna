@@ -7,6 +7,7 @@ import '../../../../core/router/routes.dart';
 import '../../../../core/strings/messages.dart';
 import '../../../../core/utils/snack_bar_message.dart';
 import '../../../../core/widgets/guest_auth_prompt.dart';
+import '../../../../core/widgets/smart_network_image.dart';
 import '../../../auth/presentation/blocs/auth/auth_bloc.dart';
 import '../../../favorites/presentation/blocs/saved_listings/saved_listings_bloc.dart';
 import '../../domain/entities/listing_entity.dart';
@@ -31,10 +32,13 @@ class ListingDetailScreen extends StatefulWidget {
 
 class _ListingDetailScreenState extends State<ListingDetailScreen> {
   final TextEditingController _commentController = TextEditingController();
+  final PageController _imagePageController = PageController();
+  int _currentImageIndex = 0;
   double _selectedRating = 5.0;
 
   @override
   void dispose() {
+    _imagePageController.dispose();
     _commentController.dispose();
     super.dispose();
   }
@@ -353,85 +357,151 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                         const SizedBox(width: 8.0),
                       ],
                       flexibleSpace: FlexibleSpaceBar(
-                        background: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Image.network(
-                              currentListing.imagePath,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: theme.colorScheme.primaryContainer,
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.home_work_rounded,
-                                      size: 64.0,
-                                      color: theme.colorScheme.primary,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.black.withValues(alpha: 0.3),
-                                    Colors.transparent,
-                                    Colors.black.withValues(alpha: 0.6),
-                                  ],
+                        background: Builder(
+                          builder: (context) {
+                            final images = currentListing.effectiveImageUrls;
+                            return Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                // Multi-photo swipeable carousel
+                                PageView.builder(
+                                  controller: _imagePageController,
+                                  itemCount: images.length,
+                                  onPageChanged: (index) {
+                                    setState(() {
+                                      _currentImageIndex = index;
+                                    });
+                                  },
+                                  itemBuilder: (context, index) {
+                                    return SmartNetworkImage(
+                                      imageUrl: images[index],
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
                                 ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 16.0,
-                              left: 16.0,
-                              right: 16.0,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
-                                    decoration: BoxDecoration(
-                                      color: theme.colorScheme.surface.withValues(alpha: 0.9),
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    child: Text(
-                                      currentListing.propertyType,
-                                      style: theme.textTheme.labelMedium?.copyWith(
-                                        color: theme.colorScheme.primary,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                // Gradient shading for contrast
+                                DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.black.withValues(alpha: 0.3),
+                                        Colors.transparent,
+                                        Colors.black.withValues(alpha: 0.65),
+                                      ],
                                     ),
                                   ),
-                                  if (currentListing.rating > 0)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+                                ),
+                                // Photo Counter Badge (e.g. "1 / 4")
+                                if (images.length > 1)
+                                  Positioned(
+                                    top: 68.0,
+                                    right: 16.0,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0,
+                                        vertical: 4.0,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: Colors.amber.shade700,
-                                        borderRadius: BorderRadius.circular(8.0),
+                                        color: Colors.black.withValues(alpha: 0.65),
+                                        borderRadius: BorderRadius.circular(12.0),
                                       ),
                                       child: Row(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.star_rounded, size: 16.0, color: Colors.white),
+                                          const Icon(
+                                            Icons.photo_library_outlined,
+                                            size: 12.0,
+                                            color: Colors.white,
+                                          ),
                                           const SizedBox(width: 4.0),
                                           Text(
-                                            '${currentListing.rating.toStringAsFixed(1)} (${currentListing.reviewCount})',
+                                            '${_currentImageIndex + 1} / ${images.length}',
                                             style: const TextStyle(
                                               color: Colors.white,
+                                              fontSize: 11.0,
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 12.0,
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                ],
-                              ),
-                            ),
-                          ],
+                                  ),
+                                // Dot Indicators
+                                if (images.length > 1)
+                                  Positioned(
+                                    bottom: 48.0,
+                                    left: 0,
+                                    right: 0,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: List.generate(
+                                        images.length,
+                                        (i) => AnimatedContainer(
+                                          duration: const Duration(milliseconds: 250),
+                                          margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                                          width: _currentImageIndex == i ? 18.0 : 6.0,
+                                          height: 6.0,
+                                          decoration: BoxDecoration(
+                                            color: _currentImageIndex == i
+                                                ? Colors.white
+                                                : Colors.white.withValues(alpha: 0.4),
+                                            borderRadius: BorderRadius.circular(3.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                Positioned(
+                                  bottom: 16.0,
+                                  left: 16.0,
+                                  right: 16.0,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+                                        decoration: BoxDecoration(
+                                          color: theme.colorScheme.surface.withValues(alpha: 0.9),
+                                          borderRadius: BorderRadius.circular(8.0),
+                                        ),
+                                        child: Text(
+                                          currentListing.propertyType,
+                                          style: theme.textTheme.labelMedium?.copyWith(
+                                            color: theme.colorScheme.primary,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      if (currentListing.rating > 0)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+                                          decoration: BoxDecoration(
+                                            color: Colors.amber.shade700,
+                                            borderRadius: BorderRadius.circular(8.0),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.star_rounded, size: 16.0, color: Colors.white),
+                                              const SizedBox(width: 4.0),
+                                              Text(
+                                                '${currentListing.rating.toStringAsFixed(1)} (${currentListing.reviewCount})',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12.0,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ),
